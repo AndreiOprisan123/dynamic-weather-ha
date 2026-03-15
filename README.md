@@ -2,7 +2,7 @@
 # 🌦️ Dynamic Location Weather Tracker
 
 <p align="center">
-  <img src="https://raw.githubusercontent.com/AndreiOprisan123/dynamic-weather-ha/main/.cloud/rainy-1-day.svg" width="180" alt="Dynamic Weather Logo">
+  <img src="https://raw.githubusercontent.com/AndreiOprisan123/dynamic-weather-ha/main/.cloud/logo.svg" width="180" alt="Dynamic Weather Logo">
 </p>
 
 <p align="center">
