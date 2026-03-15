@@ -91,7 +91,10 @@ class DynamicWeatherMainEntity(CoordinatorEntity, WeatherEntity):
         if not self.coordinator.data:
             return None
             
-        current = self.coordinator.data.get("current", {})
+        # Extragem intai sertarul de vreme
+        weather_data = self.coordinator.data.get("weather", {})
+        current = weather_data.get("current", {})
+        
         weather_code = current.get("weather_code")
         is_day = current.get("is_day", 1) # 1 = Zi, 0 = Noapte
         
@@ -107,34 +110,45 @@ class DynamicWeatherMainEntity(CoordinatorEntity, WeatherEntity):
     @property
     def native_temperature(self):
         """Temperatura curenta."""
-        return self.coordinator.data.get("current", {}).get("temperature_2m")
+        # return self.coordinator.data.get("current", {}).get("temperature_2m")
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("weather", {}).get("current", {}).get("temperature_2m")
 
     @property
     def native_wind_speed(self):
         """Viteza curenta a vantului."""
-        return self.coordinator.data.get("current", {}).get("wind_speed_10m")
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("weather", {}).get("current", {}).get("wind_speed_10m")
 
     @property
     def native_wind_bearing(self):
         """Directia vantului (in grade)."""
-        return self.coordinator.data.get("current", {}).get("wind_direction_10m")
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("weather", {}).get("current", {}).get("wind_direction_10m")
 
     @property
     def humidity(self):
         """Umiditatea curenta."""
-        return self.coordinator.data.get("current", {}).get("relative_humidity_2m")
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("weather", {}).get("current", {}).get("relative_humidity_2m")
 
     @property
     def native_pressure(self):
         """Presiunea atmosferica."""
-        return self.coordinator.data.get("current", {}).get("surface_pressure")
+        if not self.coordinator.data:
+            return None
+        return self.coordinator.data.get("weather", {}).get("current", {}).get("surface_pressure")
 
     async def async_forecast_daily(self):
         """Generam lista cu prognoza pe urmatoarele zile."""
         if not self.coordinator.data:
             return []
             
-        daily = self.coordinator.data.get("daily", {})
+        daily = self.coordinator.data.get("weather", {}).get("daily", {})
         forecast_data = []
 
         # Open-Meteo returneaza listele cu date pe zile (ziua 0, 1, 2...)

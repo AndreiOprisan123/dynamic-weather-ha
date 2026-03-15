@@ -49,21 +49,12 @@ class DynamicWeatherRainingSensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_unique_id = f"{source_name}_is_raining"
 
     @property
-    def is_on(self) -> bool:
-        """Aici e logica! Returneaza True (On/Wet) daca ploua."""
+    def is_on(self):
+        """Return true if it is raining."""
         if not self.coordinator.data:
             return False
-        
-        try:
-            # Extragem datele curente din JSON-ul de la Open-Meteo
-            current_weather = self.coordinator.data.get("current", {})
-            
-            # Adunam ploaia si aversele (in mm)
-            rain = current_weather.get("rain", 0)
-            showers = current_weather.get("showers", 0)
-            
-            # Daca suma e mai mare ca 0, inseamna ca ploua!
-            return (rain + showers) > 0
-            
-        except KeyError:
-            return False
+        # Am adaugat .get("weather", {}) inainte de "current"
+        weather_data = self.coordinator.data.get("weather", {})
+        rain = weather_data.get("current", {}).get("rain", 0)
+        showers = weather_data.get("current", {}).get("showers", 0)
+        return rain > 0 or showers > 0

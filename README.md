@@ -1,5 +1,4 @@
-
-# 🌦️ Dynamic Location Weather Tracker
+# 🌦️ Dynamic Location Weather & Health Tracker
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/AndreiOprisan123/dynamic-weather-ha/main/.cloud/logo.svg" width="180" alt="Dynamic Weather Logo">
@@ -11,19 +10,26 @@
   <img src="https://img.shields.io/github/license/AndreiOprisan123/dynamic-weather-ha?style=flat-square" alt="License">
 </p>
 
+A smart Home Assistant integration that tracks weather, **air quality, and pollen data exactly at your current location** (or your car's location) using dynamic GPS coordinates from `person` or `device_tracker` entities.
 
-A smart Home Assistant integration that tracks weather data **exactly at your current location** (or your car's location) using dynamic GPS coordinates from `person` or `device_tracker` entities.
-
-Unlike standard weather integrations that use a fixed home address, this one follows you wherever you go!
+Unlike standard integrations that use a fixed home address, this one follows you wherever you go!
 
 ## ✨ Key Features
 
-* 📍 **Real-time Location Tracking:** Automatically updates weather data based on the coordinates of your tracked entity.
-* 💧 **Smart Rain Sensor:** Specifically designed to trigger alerts for open windows or sunroofs.
-* 📊 **Comprehensive Sensors:** Temperature, Wind Speed, UV Index, Humidity, and Pressure.
-* 📅 **5-Day Forecast:** Integrated native weather entity with daily predictions.
-* ⚙️ **Easy UI Configuration:** Fully configurable via Integrations menu—no YAML required.
-* ☁️ **Reliable Data:** Powered by the Open-Meteo API (no API key needed).
+* 📍 **Real-time Location Tracking:** Automatically updates data based on the dynamic coordinates of your tracked entity (refreshes every 30 minutes).
+* 🤧 **Health & Allergy Focus (NEW):** Tracks European AQI, PM 2.5, and 5 types of Pollen (Alder, Birch, Grass, Mugwort, Ragweed) based on your exact location.
+* 💧 **Smart Rain Sensor:** A dedicated binary sensor designed to trigger fast automations for open windows or sunroofs.
+* 📊 **Comprehensive Weather Sensors:** Temperature, Wind Speed, Live UV Index, Max Daily UV Index, Humidity, and Pressure.
+* 📅 **5-Day Forecast:** Integrated native Home Assistant weather entity with daily predictions.
+* ⚙️ **Easy UI Configuration:** Fully configurable via the Integrations menu—no YAML required. Pick and choose exactly which sensors you need.
+* ☁️ **Reliable Data:** Powered by the free Open-Meteo & Air Quality APIs (no API key needed, extremely generous rate limits).
+
+## 💡 Why use this? (Automations & Use Cases)
+
+* **🚗 The Smart Car:** Parked your car at work across town? If the integration detects rain starting at the *car's specific location* (not your home), Home Assistant can send you a critical alert to close the sunroof.
+* **🤧 Personal Allergy Alerts:** Traveling to a different city? Have Home Assistant send a notification to your phone to take your allergy medication if the *Ragweed or Grass Pollen* levels are high where you currently are.
+* **🪟 Air Quality Protection:** Automatically notify your family to close the windows or turn on the AC air purifier if the PM2.5 or AQI reaches unhealthy levels in the area they are currently visiting.
+* **☀️ Sun Protection:** Get an alert before leaving your current location if the UV Index goes above a dangerous threshold.
 
 ## 🚀 Installation
 
@@ -47,9 +53,9 @@ Unlike standard weather integrations that use a fixed home address, this one fol
 4. Follow the setup wizard to select your tracked entity and desired sensors.
 
 ## ☕ Support my work
-If this integration saved your car's interior from rain or just made your smart home better, consider supporting my work.
+If this integration saved your car's interior from rain, helped you avoid an allergy attack, or just made your smart home better, consider supporting my work!
 
-[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/AndreiOprisan)
+<a href="https://www.buymeacoffee.com/AndreiOprisan"><img src="https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black" alt="Buy Me A Coffee"></a>
 
 ---
 *Disclaimer: This project is not affiliated with Open-Meteo. Please check their [Terms of Use](https://open-meteo.com/en/features#terms).*

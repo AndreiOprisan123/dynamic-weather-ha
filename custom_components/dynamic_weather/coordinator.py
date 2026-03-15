@@ -11,7 +11,7 @@ from .const import DOMAIN
 _LOGGER = logging.getLogger(__name__)
 
 # Cat de des se actualizeaza datele automat (2 ore)
-UPDATE_INTERVAL = timedelta(hours=2)
+UPDATE_INTERVAL = timedelta(minutes=30)
 
 class DynamicWeatherCoordinator(DataUpdateCoordinator):
     """Clasa care gestioneaza descarcarea datelor de la Open-Meteo."""
@@ -45,23 +45,36 @@ class DynamicWeatherCoordinator(DataUpdateCoordinator):
             lat = self.hass.config.latitude
             lon = self.hass.config.longitude
 
-        # 3. Construim URL-ul API-ului Open-Meteo (toate datele intr-un singur apel)
-        url = (
+        # 3. Construim URL-urile
+        weather_url = (
             f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
-            "&current=temperature_2m,relative_humidity_2m,apparent_temperature,is_day,precipitation,rain,showers,snowfall,weather_code,cloud_cover,pressure_msl,surface_pressure,wind_speed_10m,wind_direction_10m,wind_gusts_10m"
-            "&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,uv_index_max,precipitation_sum,rain_sum,showers_sum,snowfall_sum,precipitation_probability_max,wind_speed_10m_max,wind_gusts_10m_max,wind_direction_10m_dominant"
+            "&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index,rain,showers,weather_code,is_day"
+            "&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,weather_code,wind_speed_10m_max,wind_direction_10m_dominant,precipitation_sum"
+            "&timezone=auto"
+        )
+        
+        aq_url = (
+            f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}"
+            "&current=european_aqi,pm10,pm2_5,alder_pollen,birch_pollen,grass_pollen,mugwort_pollen,ragweed_pollen"
             "&timezone=auto"
         )
 
-        # 4. Facem apelul efectiv pe internet
-        session = async_get_clientsession(self.hass)
         try:
-            async with session.get(url) as response:
-                if response.status != 200:
-                    raise UpdateFailed(f"Open-Meteo Error: {response.status}")
-                
-                # Returnam JSON-ul pe care il vor folosi senzorii
-                return await response.json()
-                
+            session = async_get_clientsession(self.hass)
+            
+            # Cerem datele de vreme
+            weather_res = await session.get(weather_url)
+            weather_data = await weather_res.json()
+            
+            # Cerem datele de calitatea aerului
+            aq_res = await session.get(aq_url)
+            aq_data = await aq_res.json()
+
+            # Împachetăm totul frumos în două "sertare"
+            return {
+                "weather": weather_data,
+                "air_quality": aq_data
+            }
+
         except Exception as err:
-            raise UpdateFailed(f"API Error: {err}")
+            raise UpdateFailed(f"Eroare la comunicarea cu Open-Meteo API: {err}")

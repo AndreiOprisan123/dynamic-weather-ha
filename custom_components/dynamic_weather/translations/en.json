@@ -2,19 +2,30 @@
     "config": {
         "step": {
             "user": {
-                "title": "Configure Dynamic Weather Tracker",
-                "description": "Choose which entity to track and what sensors to enable.",
+                "title": "Configure Dynamic Weather & Health Tracker",
+                "description": "Choose which entity to track and select your desired weather, air quality, and pollen sensors.",
                 "data": {
                     "name": "Instance Name (e.g. Car)",
                     "entity_id": "Entity to Track",
                     "create_weather_entity": "Create Weather Forecast Entity",
                     "track_is_raining": "Enable 'Is Raining' Binary Sensor",
-                    "track_temp": "Enable Temperature Sensor",
-                    "track_wind": "Enable Wind Speed Sensor",
-                    "track_rain_chance": "Enable Precipitation Probability Sensor",
-                    "track_uv": "Enable UV Index Sensor",
-                    "track_humidity": "Enable Humidity Sensor",
-                    "track_pressure": "Enable Pressure Sensor"
+                    
+                    "temperature": "Enable Temperature Sensor",
+                    "wind_speed": "Enable Wind Speed Sensor",
+                    "rain_chance": "Enable Precipitation Probability Sensor",
+                    "uv_index": "Enable Live UV Index Sensor",
+                    "uv_index_max": "Enable Max UV Index Sensor",
+                    "humidity": "Enable Humidity Sensor",
+                    "pressure": "Enable Pressure Sensor",
+                    
+                    "european_aqi": "Enable Air Quality (AQI) Sensor",
+                    "pm2_5": "Enable PM 2.5 Sensor",
+                    
+                    "alder_pollen": "Enable Alder Pollen Sensor (Arin)",
+                    "birch_pollen": "Enable Birch Pollen Sensor (Mesteacăn)",
+                    "grass_pollen": "Enable Grass Pollen Sensor (Graminee)",
+                    "mugwort_pollen": "Enable Mugwort Pollen Sensor (Pelin)",
+                    "ragweed_pollen": "Enable Ragweed Pollen Sensor (Ambrozie)"
                 }
             }
         },
