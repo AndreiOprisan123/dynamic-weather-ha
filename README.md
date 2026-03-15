@@ -2,7 +2,7 @@
 # 🌦️ Dynamic Location Weather Tracker
 
 <p align="center">
-  <img src=".cloud/rainy-1-day.svg" width="180" alt="Dynamic Weather Logo">
+  <img src=".cloud/logo.svg" width="180" alt="Dynamic Weather Logo">
 </p>
 
 <p align="center">
