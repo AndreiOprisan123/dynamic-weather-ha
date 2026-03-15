@@ -24,43 +24,42 @@ from .const import (
 # 'value_fn' este o mini-functie care stie exact in ce sertar din JSON-ul Open-Meteo sa caute.
 SENSOR_TYPES = {
     CONF_TRACK_TEMP: {
-        "name": "Temperatura Curenta",
+        "name": "Temperature",
         "device_class": SensorDeviceClass.TEMPERATURE,
         "unit": "°C",
         "icon": "mdi:thermometer",
         "value_fn": lambda data: data.get("current", {}).get("temperature_2m"),
     },
     CONF_TRACK_WIND: {
-        "name": "Viteza Vant",
+        "name": "Wind Speed",
         "device_class": SensorDeviceClass.WIND_SPEED,
         "unit": "km/h",
         "icon": "mdi:weather-windy",
         "value_fn": lambda data: data.get("current", {}).get("wind_speed_10m"),
     },
     CONF_TRACK_HUMIDITY: {
-        "name": "Umiditate",
+        "name": "Humidity",
         "device_class": SensorDeviceClass.HUMIDITY,
         "unit": "%",
         "icon": "mdi:water-percent",
         "value_fn": lambda data: data.get("current", {}).get("relative_humidity_2m"),
     },
     CONF_TRACK_PRESSURE: {
-        "name": "Presiune",
+        "name": "Pressure",
         "device_class": SensorDeviceClass.ATMOSPHERIC_PRESSURE,
         "unit": "hPa",
         "icon": "mdi:gauge",
         "value_fn": lambda data: data.get("current", {}).get("surface_pressure"),
     },
     CONF_TRACK_RAIN_CHANCE: {
-        "name": "Sanse Ploaie",
-        "device_class": None, # Nu exista o clasa oficiala doar pentru sanse de ploaie
+        "name": "Precipitation Probability",
+        "device_class": None,
         "unit": "%",
         "icon": "mdi:weather-rainy",
-        # Pentru daily extragem primul element din lista [0] (ziua de azi)
         "value_fn": lambda data: data.get("daily", {}).get("precipitation_probability_max", [None])[0],
     },
     CONF_TRACK_UV: {
-        "name": "Index UV Max",
+        "name": "UV Index",
         "device_class": None,
         "unit": "UV",
         "icon": "mdi:weather-sunny-alert",
@@ -105,7 +104,8 @@ class DynamicWeatherSensor(CoordinatorEntity, SensorEntity):
         
         # Setam atributele vizuale (Nume, Icoana, Unitate de masura)
         self._attr_name = f"{name} {sensor_info['name']}"
-        self._attr_unique_id = f"{entry_id}_{conf_key}"
+        source_name = coordinator.entity_id.split(".")[-1]
+        self._attr_unique_id = f"{source_name}_{conf_key}"
         self._attr_device_class = sensor_info["device_class"]
         self._attr_native_unit_of_measurement = sensor_info["unit"]
         self._attr_icon = sensor_info["icon"]

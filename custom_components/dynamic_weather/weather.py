@@ -81,8 +81,9 @@ class DynamicWeatherMainEntity(CoordinatorEntity, WeatherEntity):
     def __init__(self, coordinator, name, entry_id):
         """Initializare."""
         super().__init__(coordinator)
-        self._attr_name = f"Vreme {name}"
-        self._attr_unique_id = f"{entry_id}_weather"
+        self._attr_name = f"Weather {name}"
+        source_name = coordinator.entity_id.split(".")[-1]
+        self._attr_unique_id = f"{source_name}_weather"
 
     @property
     def condition(self):

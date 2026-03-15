@@ -34,14 +34,14 @@ class DynamicWeatherCoordinator(DataUpdateCoordinator):
         entity_state = self.hass.states.get(self.entity_id)
 
         if not entity_state:
-            raise UpdateFailed(f"Entitatea {self.entity_id} nu a putut fi gasita!")
+            raise UpdateFailed(f"The entity {self.entity_id} could not be found!")
 
         # 2. Luam coordonatele GPS. Daca lipsesc (masina in tunel), folosim lat/lon setate in HA ca fallback
         lat = entity_state.attributes.get("latitude")
         lon = entity_state.attributes.get("longitude")
 
         if lat is None or lon is None:
-            _LOGGER.warning(f"{self.entity_id} nu are locatie curenta. Folosim locatia casei.")
+            _LOGGER.warning(f"{self.entity_id} does not have a current location. Using home location.")
             lat = self.hass.config.latitude
             lon = self.hass.config.longitude
 
@@ -58,10 +58,10 @@ class DynamicWeatherCoordinator(DataUpdateCoordinator):
         try:
             async with session.get(url) as response:
                 if response.status != 200:
-                    raise UpdateFailed(f"Eroare de la Open-Meteo: {response.status}")
+                    raise UpdateFailed(f"Open-Meteo Error: {response.status}")
                 
                 # Returnam JSON-ul pe care il vor folosi senzorii
                 return await response.json()
                 
         except Exception as err:
-            raise UpdateFailed(f"Eroare conexiune API: {err}")
+            raise UpdateFailed(f"API Error: {err}")

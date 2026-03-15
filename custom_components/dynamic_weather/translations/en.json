@@ -1,0 +1,25 @@
+{
+    "config": {
+        "step": {
+            "user": {
+                "title": "Configure Dynamic Weather Tracker",
+                "description": "Choose which entity to track and what sensors to enable.",
+                "data": {
+                    "name": "Instance Name (e.g. Car)",
+                    "entity_id": "Entity to Track",
+                    "create_weather_entity": "Create Weather Forecast Entity",
+                    "track_is_raining": "Enable 'Is Raining' Binary Sensor",
+                    "track_temp": "Enable Temperature Sensor",
+                    "track_wind": "Enable Wind Speed Sensor",
+                    "track_rain_chance": "Enable Precipitation Probability Sensor",
+                    "track_uv": "Enable UV Index Sensor",
+                    "track_humidity": "Enable Humidity Sensor",
+                    "track_pressure": "Enable Pressure Sensor"
+                }
+            }
+        },
+        "abort": {
+            "already_configured": "This device/person is already configured."
+        }
+    }
+}

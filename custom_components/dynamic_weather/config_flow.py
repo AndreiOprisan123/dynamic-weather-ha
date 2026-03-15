@@ -28,26 +28,26 @@ class DynamicWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
 
         if user_input is not None:
             # Salvam configuratia aleasa de utilizator
-            return self.async_create_entry(title=user_input[CONF_NAME], data=user_input)
+            return self.async_create_entry(
+                title=f"Dynamic Weather: {user_input[CONF_NAME]}", 
+                data=user_input
+            )
 
         # Definim cum arata formularul cu noile optiuni
         data_schema = vol.Schema(
             {
-                vol.Required(CONF_NAME, default="Vreme Dinamica"): str,
+                vol.Required(CONF_NAME): str,
                 vol.Required(CONF_ENTITY_ID): selector.EntitySelector(
                     selector.EntitySelectorConfig(domain=["person", "device_tracker"])
                 ),
-                # Optiuni principale (Bifate implicit)
                 vol.Optional(CONF_CREATE_WEATHER_ENTITY, default=True): bool,
                 vol.Optional(CONF_TRACK_IS_RAINING, default=True): bool,
-                # Senzori individuali (Bifate implicit)
                 vol.Optional(CONF_TRACK_TEMP, default=True): bool,
                 vol.Optional(CONF_TRACK_WIND, default=True): bool,
                 vol.Optional(CONF_TRACK_RAIN_CHANCE, default=True): bool,
                 vol.Optional(CONF_TRACK_UV, default=True): bool,
-                # Senzori de nisa (Debifate implicit, pentru a nu aglomera UI-ul)
-                vol.Optional(CONF_TRACK_HUMIDITY, default=False): bool,
-                vol.Optional(CONF_TRACK_PRESSURE, default=False): bool,
+                vol.Optional(CONF_TRACK_HUMIDITY, default=True): bool,
+                vol.Optional(CONF_TRACK_PRESSURE, default=True): bool,
             }
         )
 
