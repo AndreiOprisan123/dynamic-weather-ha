@@ -1,3 +1,4 @@
+
 # 🌦️ Dynamic Location Weather Tracker
 
 <p align="center">
@@ -5,9 +6,9 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/custom-components/hacs"><img src="https://img.shields.com/badge/HACS-Custom-orange.svg" alt="HACS"></a>
-  <img src="https://img.shields.com/github/v/release/AndreiOprisan123/dynamic-weather-ha" alt="Version">
-  <img src="https://img.shields.com/github/license/AndreiOprisan123/dynamic-weather-ha" alt="License">
+  <a href="https://github.com/hacs/integration"><img src="https://img.shields.com/badge/HACS-Custom-orange.svg" alt="HACS"></a>
+  <a href="https://github.com/AndreiOprisan123/dynamic-weather-ha/releases"><img src="https://img.shields.io/github/v/release/AndreiOprisan123/dynamic-weather-ha" alt="Version"></a>
+  <a href="https://github.com/AndreiOprisan123/dynamic-weather-ha/blob/main/LICENSE"><img src="https://img.shields.io/github/license/AndreiOprisan123/dynamic-weather-ha" alt="License"></a>
 </p>
 
 A smart Home Assistant integration that tracks weather data **exactly at your current location** (or your car's location) using dynamic GPS coordinates from `person` or `device_tracker` entities.
