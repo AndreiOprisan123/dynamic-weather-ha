@@ -2,14 +2,15 @@
 # 🌦️ Dynamic Location Weather Tracker
 
 <p align="center">
-  <img src=".cloud/logo.svg" width="180" alt="Dynamic Weather Logo">
+  <img src="https://raw.githubusercontent.com/AndreiOprisan123/dynamic-weather-ha/main/.cloud/rainy-1-day.svg" width="180" alt="Dynamic Weather Logo">
 </p>
 
 <p align="center">
-  <a href="https://github.com/hacs/integration"><img src="https://img.shields.com/badge/HACS-Custom-orange.svg" alt="HACS"></a>
-  <a href="https://github.com/AndreiOprisan123/dynamic-weather-ha/releases"><img src="https://img.shields.io/github/v/release/AndreiOprisan123/dynamic-weather-ha" alt="Version"></a>
-  <a href="https://github.com/AndreiOprisan123/dynamic-weather-ha/blob/main/LICENSE"><img src="https://img.shields.io/github/license/AndreiOprisan123/dynamic-weather-ha" alt="License"></a>
+  <a href="https://github.com/custom-components/hacs"><img src="https://img.shields.io/badge/HACS-Custom-orange.svg" alt="HACS"></a>
+  <img src="https://img.shields.io/github/v/release/AndreiOprisan123/dynamic-weather-ha?style=flat-square" alt="Version">
+  <img src="https://img.shields.io/github/license/AndreiOprisan123/dynamic-weather-ha?style=flat-square" alt="License">
 </p>
+
 
 A smart Home Assistant integration that tracks weather data **exactly at your current location** (or your car's location) using dynamic GPS coordinates from `person` or `device_tracker` entities.
 
@@ -48,7 +49,7 @@ Unlike standard weather integrations that use a fixed home address, this one fol
 ## ☕ Support my work
 If this integration saved your car's interior from rain or just made your smart home better, consider supporting my work.
 
-[![Buy Me A Coffee](https://img.shields.com/badge/Buy%20Me%20A%20Coffee-Donate-yellow?style=for-the-badge&logo=buy-me-a-coffee)](https://www.buymeacoffee.com/AndreiOprisan)
+[![Buy Me A Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-ffdd00?style=for-the-badge&logo=buy-me-a-coffee&logoColor=black)](https://www.buymeacoffee.com/AndreiOprisan)
 
 ---
 *Disclaimer: This project is not affiliated with Open-Meteo. Please check their [Terms of Use](https://open-meteo.com/en/features#terms).*
