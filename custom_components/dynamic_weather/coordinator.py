@@ -72,13 +72,16 @@ class DynamicWeatherCoordinator(DataUpdateCoordinator):
                 addr = geo_data["address"]
                 city = addr.get("city", addr.get("town", addr.get("village", addr.get("county", ""))))
                 road = addr.get("road", "")
+                country = addr.get("country", "") # Extragem si tara
                 
-                if road and city:
-                    location_name = f"{road}, {city}"
-                elif city:
-                    location_name = city
+                # Punem intr-o lista doar elementele gasite (ca sa nu avem virgule in plus daca lipseste strada)
+                location_parts = [part for part in (road, city, country) if part]
+                
+                if location_parts:
+                    location_name = ", ".join(location_parts)
                 else:
-                    location_name = geo_data.get("display_name", "Locatie Gasita").split(",")[0]
+                    # Fallback la numele general de display
+                    location_name = geo_data.get("display_name", "Location Found").split(",")[0]
         except Exception as e:
             _LOGGER.error(f"Eroare la reverse geocoding: {e}")
             location_name = f"Lat: {round(lat, 4)}, Lon: {round(lon, 4)}"

@@ -48,6 +48,14 @@ class DynamicWeatherRainingSensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_unique_id = f"dynamic_weather_{source_name}_{entry_id}_is_raining"
 
     @property
+    def extra_state_attributes(self):
+        """Returneaza locatia curenta ca atribut pentru senzorul binar."""
+        attrs = {}
+        if self.coordinator.data and "location_name" in self.coordinator.data:
+            attrs["current_location"] = self.coordinator.data["location_name"]
+        return attrs
+    
+    @property
     def is_on(self):
         """Return true if it is raining."""
         if not self.coordinator.data:
