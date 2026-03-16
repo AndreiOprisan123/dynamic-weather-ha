@@ -4,8 +4,8 @@
   "codeowners": ["@AndreiOprisan123"],
   "config_flow": true,
   "documentation": "https://github.com/AndreiOprisan123/dynamic-weather-ha",
-  "issue_tracker": "https://github.com/AndreiOprisan123/dynamic-weather-ha/issues",
   "iot_class": "cloud_polling",
-  "version": "1.1.4",
-  "requirements": []
+  "issue_tracker": "https://github.com/AndreiOprisan123/dynamic-weather-ha/issues",
+  "requirements": [],
+  "version": "1.1.4"
 }
