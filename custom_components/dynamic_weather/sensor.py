@@ -131,7 +131,7 @@ SENSOR_TYPES = {
     },
     CONF_TRACK_CO: {
         "name": "Carbon Monoxide",
-        "device_class": SensorDeviceClass.CARBON_MONOXIDE,
+        "device_class": SensorDeviceClass.CO,  # <--- AICI am modificat (din CARBON_MONOXIDE in CO)
         "unit": "µg/m³",
         "icon": "mdi:molecule",
         "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("carbon_monoxide"),

@@ -24,18 +24,18 @@
                     
                     "european_aqi": "Enable Air Quality (AQI)",
                     "pm2_5": "Enable PM 2.5 (Fine Particles)",
-                    "pm10": "Enable PM 10 (Dust & Pollen)",
+                    "pm10": "Enable PM 10 (Dust)",
                     "ozone": "Enable Ozone (O3)",
                     "nitrogen_dioxide": "Enable Nitrogen Dioxide (NO2)",
                     "sulphur_dioxide": "Enable Sulphur Dioxide (SO2)",
                     "carbon_monoxide": "Enable Carbon Monoxide (CO)",
                     
-                    "alder_pollen": "Enable Alder Pollen",
-                    "birch_pollen": "Enable Birch Pollen",
-                    "grass_pollen": "Enable Grass Pollen",
-                    "mugwort_pollen": "Enable Mugwort Pollen",
-                    "ragweed_pollen": "Enable Ragweed Pollen",
-                    "olive_pollen": "Enable Olive Pollen"
+                    "alder_pollen": "Enable Alder Pollen Sensor",
+                    "birch_pollen": "Enable Birch Pollen Sensor",
+                    "grass_pollen": "Enable Grass Pollen Sensor",
+                    "mugwort_pollen": "Enable Mugwort Pollen Sensor",
+                    "ragweed_pollen": "Enable Ragweed Pollen Sensor",
+                    "olive_pollen": "Enable Olive Pollen Sensor"
                 }
             }
         },
