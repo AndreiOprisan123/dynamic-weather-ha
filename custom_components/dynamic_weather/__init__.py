@@ -20,12 +20,12 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     hass.data.setdefault(DOMAIN, {})
 
     # Luam entitatea aleasa de utilizator din formular (ex: person.masina)
-    entity_id = entry.data[CONF_ENTITY_ID]
+    entity_id = entry.data.get(CONF_ENTITY_ID, "Manual_Location")
 
-    _LOGGER.debug(f"Pornim Dynamic Weather pentru: {entity_id}")
+    _LOGGER.debug(f"We start Dynamic Weather for: {entity_id}")
 
     # Instantiem creierul (coordinatorul)
-    coordinator = DynamicWeatherCoordinator(hass, entity_id)
+    coordinator = DynamicWeatherCoordinator(hass, entry.data, entry.entry_id)
 
     # Facem prima descarcare de date de la Open-Meteo INAINTE sa cream senzorii
     # Functia asta e super inteligenta: daca pica netul, va reincerca automat mai tarziu

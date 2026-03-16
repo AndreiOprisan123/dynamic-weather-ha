@@ -2,35 +2,48 @@
     "config": {
         "step": {
             "user": {
-                "title": "Configure Dynamic Weather & Health Tracker",
-                "description": "Choose which entity to track and select your desired weather, air quality, and pollen sensors.",
+                "title": "Configure Dynamic Weather & Health",
+                "description": "Choose a moving entity to track OR select 'Use Manual Location' and provide coordinates. Then pick your desired sensors.",
                 "data": {
-                    "name": "Instance Name (e.g. Car)",
-                    "entity_id": "Entity to Track",
+                    "name": "Instance Name (e.g., My Car)",
+                    "entity_id": "Moving Entity to Track (Leave empty if using Manual Location)",
+                    "use_manual_location": "Use Manual Location (Fixed Pin)",
+                    "latitude": "Latitude (Only for Manual Location)",
+                    "longitude": "Longitude (Only for Manual Location)",
+                    
                     "create_weather_entity": "Create Weather Forecast Entity",
                     "track_is_raining": "Enable 'Is Raining' Binary Sensor",
                     
                     "temperature": "Enable Temperature Sensor",
                     "wind_speed": "Enable Wind Speed Sensor",
-                    "rain_chance": "Enable Precipitation Probability Sensor",
-                    "uv_index": "Enable Live UV Index Sensor",
-                    "uv_index_max": "Enable Max UV Index Sensor",
-                    "humidity": "Enable Humidity Sensor",
-                    "pressure": "Enable Pressure Sensor",
+                    "rain_chance": "Enable Precipitation Probability",
+                    "uv_index": "Enable Live UV Index",
+                    "uv_index_max": "Enable Max Daily UV Index",
+                    "humidity": "Enable Humidity",
+                    "pressure": "Enable Pressure",
                     
-                    "european_aqi": "Enable Air Quality (AQI) Sensor",
-                    "pm2_5": "Enable PM 2.5 Sensor",
+                    "european_aqi": "Enable Air Quality (AQI)",
+                    "pm2_5": "Enable PM 2.5 (Fine Particles)",
+                    "pm10": "Enable PM 10 (Dust & Pollen)",
+                    "ozone": "Enable Ozone (O3)",
+                    "nitrogen_dioxide": "Enable Nitrogen Dioxide (NO2)",
+                    "sulphur_dioxide": "Enable Sulphur Dioxide (SO2)",
+                    "carbon_monoxide": "Enable Carbon Monoxide (CO)",
                     
-                    "alder_pollen": "Enable Alder Pollen Sensor (Arin)",
-                    "birch_pollen": "Enable Birch Pollen Sensor (Mesteacăn)",
-                    "grass_pollen": "Enable Grass Pollen Sensor (Graminee)",
-                    "mugwort_pollen": "Enable Mugwort Pollen Sensor (Pelin)",
-                    "ragweed_pollen": "Enable Ragweed Pollen Sensor (Ambrozie)"
+                    "alder_pollen": "Enable Alder Pollen",
+                    "birch_pollen": "Enable Birch Pollen",
+                    "grass_pollen": "Enable Grass Pollen",
+                    "mugwort_pollen": "Enable Mugwort Pollen",
+                    "ragweed_pollen": "Enable Ragweed Pollen",
+                    "olive_pollen": "Enable Olive Pollen"
                 }
             }
         },
+        "error": {
+            "missing_entity": "You must select an Entity OR check 'Use Manual Location'."
+        },
         "abort": {
-            "already_configured": "This device/person is already configured."
+            "already_configured": "This instance is already configured."
         }
     }
 }

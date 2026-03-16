@@ -1,4 +1,4 @@
-"""Senzori numerici (Temperatura, Vant, UV, etc.) pentru Dynamic Weather."""
+"""Numeric sensors (Temperature, Wind, UV, Pollen, AQI, etc.) for Dynamic Weather."""
 from homeassistant.components.sensor import (
     SensorDeviceClass,
     SensorEntity,
@@ -21,22 +21,26 @@ from .const import (
     CONF_TRACK_PRESSURE,
     CONF_TRACK_AQI,
     CONF_TRACK_PM25,
+    CONF_TRACK_PM10,
+    CONF_TRACK_OZONE,
+    CONF_TRACK_NO2,
+    CONF_TRACK_SO2,
+    CONF_TRACK_CO,
     CONF_TRACK_ALDER,
     CONF_TRACK_BIRCH,
     CONF_TRACK_GRASS,
     CONF_TRACK_MUGWORT,
     CONF_TRACK_RAGWEED,
+    CONF_TRACK_OLIVE,
 )
 
-# Aici este "Fabrica de retete". Definim cum arata fiecare senzor si de unde isi ia valoarea.
-# 'value_fn' este o mini-functie care stie exact in ce sertar din JSON-ul Open-Meteo sa caute.
+# Sensor Factory / Dictionary
 SENSOR_TYPES = {
     CONF_TRACK_TEMP: {
         "name": "Temperature",
         "device_class": SensorDeviceClass.TEMPERATURE,
         "unit": "°C",
         "icon": "mdi:thermometer",
-        # Corectat aici:
         "value_fn": lambda data: data.get("weather", {}).get("current", {}).get("temperature_2m"),
     },
     CONF_TRACK_WIND: {
@@ -44,7 +48,6 @@ SENSOR_TYPES = {
         "device_class": SensorDeviceClass.WIND_SPEED,
         "unit": "km/h",
         "icon": "mdi:weather-windy",
-        # Corectat aici:
         "value_fn": lambda data: data.get("weather", {}).get("current", {}).get("wind_speed_10m"),
     },
     CONF_TRACK_HUMIDITY: {
@@ -52,7 +55,6 @@ SENSOR_TYPES = {
         "device_class": SensorDeviceClass.HUMIDITY,
         "unit": "%",
         "icon": "mdi:water-percent",
-        # Corectat aici:
         "value_fn": lambda data: data.get("weather", {}).get("current", {}).get("relative_humidity_2m"),
     },
     CONF_TRACK_PRESSURE: {
@@ -60,7 +62,6 @@ SENSOR_TYPES = {
         "device_class": SensorDeviceClass.ATMOSPHERIC_PRESSURE,
         "unit": "hPa",
         "icon": "mdi:gauge",
-        # Corectat aici:
         "value_fn": lambda data: data.get("weather", {}).get("current", {}).get("surface_pressure"),
     },
     CONF_TRACK_RAIN_CHANCE: {
@@ -68,7 +69,6 @@ SENSOR_TYPES = {
         "device_class": None,
         "unit": "%",
         "icon": "mdi:weather-rainy",
-        # Corectat aici (si pus 'daily'):
         "value_fn": lambda data: data.get("weather", {}).get("daily", {}).get("precipitation_probability_max", [None])[0],
     },
     CONF_TRACK_UV: {
@@ -85,7 +85,8 @@ SENSOR_TYPES = {
         "icon": "mdi:weather-sunny-alert",
         "value_fn": lambda data: data.get("weather", {}).get("daily", {}).get("uv_index_max", [None])[0],
     },
-    # --- SANATATE SI AER ---
+    
+    # --- HEALTH & AIR QUALITY ---
     CONF_TRACK_AQI: {
         "name": "Air Quality (AQI)",
         "device_class": SensorDeviceClass.AQI,
@@ -100,8 +101,43 @@ SENSOR_TYPES = {
         "icon": "mdi:smog",
         "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("pm2_5"),
     },
-    
-    # --- POLEN (Separat) ---
+    CONF_TRACK_PM10: {
+        "name": "PM 10",
+        "device_class": SensorDeviceClass.PM10,
+        "unit": "µg/m³",
+        "icon": "mdi:smog",
+        "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("pm10"),
+    },
+    CONF_TRACK_OZONE: {
+        "name": "Ozone",
+        "device_class": SensorDeviceClass.OZONE,
+        "unit": "µg/m³",
+        "icon": "mdi:molecule",
+        "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("ozone"),
+    },
+    CONF_TRACK_NO2: {
+        "name": "Nitrogen Dioxide",
+        "device_class": SensorDeviceClass.NITROGEN_DIOXIDE,
+        "unit": "µg/m³",
+        "icon": "mdi:molecule",
+        "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("nitrogen_dioxide"),
+    },
+    CONF_TRACK_SO2: {
+        "name": "Sulphur Dioxide",
+        "device_class": SensorDeviceClass.SULPHUR_DIOXIDE,
+        "unit": "µg/m³",
+        "icon": "mdi:molecule",
+        "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("sulphur_dioxide"),
+    },
+    CONF_TRACK_CO: {
+        "name": "Carbon Monoxide",
+        "device_class": SensorDeviceClass.CARBON_MONOXIDE,
+        "unit": "µg/m³",
+        "icon": "mdi:molecule",
+        "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("carbon_monoxide"),
+    },
+
+    # --- POLLEN ---
     CONF_TRACK_ALDER: {
         "name": "Alder Pollen",
         "device_class": None,
@@ -131,64 +167,125 @@ SENSOR_TYPES = {
         "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("mugwort_pollen"),
     },
     CONF_TRACK_RAGWEED: {
-        "name": "Ragweed Pollen (Ambrozie)",
+        "name": "Ragweed Pollen",
         "device_class": None,
         "unit": "grains/m³",
         "icon": "mdi:flower-pollen",
         "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("ragweed_pollen"),
+    },
+    CONF_TRACK_OLIVE: {
+        "name": "Olive Pollen",
+        "device_class": None,
+        "unit": "grains/m³",
+        "icon": "mdi:flower-pollen",
+        "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("olive_pollen"),
     },
 }
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Seteaza platforma de senzori pe baza alegerilor din UI."""
-    
+    """Set up sensor platform."""
     coordinator = hass.data[DOMAIN][entry.entry_id]
-    custom_name = entry.data[CONF_NAME]
+    custom_name = entry.data.get(CONF_NAME, "Tracker")
 
     sensors = []
 
-    # Trecem prin toate retetele noastre din dictionarul de mai sus
     for conf_key, sensor_info in SENSOR_TYPES.items():
-        # Daca utilizatorul a bifat senzorul in interfata grafica, il cream!
         if entry.data.get(conf_key, False):
             sensors.append(
                 DynamicWeatherSensor(coordinator, custom_name, entry.entry_id, conf_key, sensor_info)
             )
 
-    # Daca am strans senzori in lista, ii spunem lui HA sa ii genereze
     if sensors:
         async_add_entities(sensors)
 
 
 class DynamicWeatherSensor(CoordinatorEntity, SensorEntity):
-    """Senzor numeric individual."""
+    """Individual numeric sensor."""
 
     _attr_state_class = SensorStateClass.MEASUREMENT
 
     def __init__(self, coordinator, name, entry_id, conf_key, sensor_info):
-        """Initializam senzorul cu datele din reteta."""
+        """Initialize the sensor."""
         super().__init__(coordinator)
         
         self.sensor_info = sensor_info
         self.value_fn = sensor_info["value_fn"]
+        self.conf_key = conf_key
         
-        # Setam atributele vizuale (Nume, Icoana, Unitate de masura)
-        self._attr_name = f"{name} {sensor_info['name']}"
-        source_name = coordinator.entity_id.split(".")[-1]
-        self._attr_unique_id = f"{source_name}_{conf_key}"
+        # Display name (e.g. "Dynamic Weather Car Temperature")
+        self._attr_name = f"Dynamic Weather {name} {sensor_info['name']}"
+        
+        # BREAKING CHANGE: Unique ID prefixed with dynamic_weather_ to avoid conflicts
+        source_name = coordinator.entity_id.split(".")[-1] if coordinator.entity_id else "manual"
+        self._attr_unique_id = f"dynamic_weather_{source_name}_{entry_id}_{conf_key}"
+        
         self._attr_device_class = sensor_info["device_class"]
         self._attr_native_unit_of_measurement = sensor_info["unit"]
         self._attr_icon = sensor_info["icon"]
 
     @property
     def native_value(self):
-        """Aici extragem valoarea reala folosind mini-functia din reteta."""
+        """Extract value from coordinator data."""
         if not self.coordinator.data:
             return None
-            
         try:
             return self.value_fn(self.coordinator.data)
         except Exception:
             return None
+
+    @property
+    def extra_state_attributes(self):
+        """Return extra attributes (Location and Health Risk)."""
+        attrs = {}
+        
+        if not self.coordinator.data:
+            return attrs
+
+        # 1. Reverse Geocoding Attribute
+        location = self.coordinator.data.get("location_name")
+        if location:
+            attrs["current_location"] = location
+
+        # 2. Health Risk Rating
+        val = self.native_value
+        if val is not None:
+            risk = self._calculate_health_risk(self.conf_key, val)
+            if risk:
+                attrs["health_risk"] = risk
+
+        return attrs
+
+    def _calculate_health_risk(self, sensor_type, value):
+        """Calculate human-readable risk levels."""
+        try:
+            v = float(value)
+        except (TypeError, ValueError):
+            return None
+
+        # Pollen thresholds (grains/m3)
+        if sensor_type in [CONF_TRACK_ALDER, CONF_TRACK_BIRCH, CONF_TRACK_GRASS, CONF_TRACK_MUGWORT, CONF_TRACK_RAGWEED, CONF_TRACK_OLIVE]:
+            if v < 15: return "Low"
+            if v < 50: return "Moderate"
+            return "High"
+            
+        # Air Quality Index (European)
+        if sensor_type == CONF_TRACK_AQI:
+            if v <= 50: return "Good"
+            if v <= 100: return "Moderate"
+            return "Poor"
+            
+        # PM 2.5
+        if sensor_type == CONF_TRACK_PM25:
+            if v <= 15: return "Good"
+            if v <= 35: return "Moderate"
+            return "Poor"
+            
+        # PM 10
+        if sensor_type == CONF_TRACK_PM10:
+            if v <= 25: return "Good"
+            if v <= 50: return "Moderate"
+            return "Poor"
+
+        return None

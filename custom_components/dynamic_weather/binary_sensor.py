@@ -43,10 +43,9 @@ class DynamicWeatherRainingSensor(CoordinatorEntity, BinarySensorEntity):
         super().__init__(coordinator)
         
         # Numele final va fi ex: "Masina Ploua Acum"
-        self._attr_name = f"{name} Is Raining"
-        # Unique ID-ul e esential pentru ca utilizatorul sa ii poata schimba iconita din UI mai tarziu
-        source_name = coordinator.entity_id.split(".")[-1]
-        self._attr_unique_id = f"{source_name}_is_raining"
+        self._attr_name = f"Dynamic Weather {name} Is Raining"
+        source_name = coordinator.entity_id.split(".")[-1] if coordinator.entity_id else "manual"
+        self._attr_unique_id = f"dynamic_weather_{source_name}_{entry_id}_is_raining"
 
     @property
     def is_on(self):

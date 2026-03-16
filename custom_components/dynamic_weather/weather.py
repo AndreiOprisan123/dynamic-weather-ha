@@ -81,9 +81,9 @@ class DynamicWeatherMainEntity(CoordinatorEntity, WeatherEntity):
     def __init__(self, coordinator, name, entry_id):
         """Initializare."""
         super().__init__(coordinator)
-        self._attr_name = f"Weather {name}"
-        source_name = coordinator.entity_id.split(".")[-1]
-        self._attr_unique_id = f"{source_name}_weather"
+        self._attr_name = f"Dynamic Weather {name}"
+        source_name = coordinator.entity_id.split(".")[-1] if coordinator.entity_id else "manual"
+        self._attr_unique_id = f"dynamic_weather_{source_name}_{entry_id}_weather"
 
     @property
     def condition(self):
@@ -142,6 +142,19 @@ class DynamicWeatherMainEntity(CoordinatorEntity, WeatherEntity):
         if not self.coordinator.data:
             return None
         return self.coordinator.data.get("weather", {}).get("current", {}).get("surface_pressure")
+    
+    @property
+    def extra_state_attributes(self):
+        """Returneaza atribute suplimentare (locatia curenta)."""
+        attrs = {}
+        if not self.coordinator.data:
+            return attrs
+
+        location = self.coordinator.data.get("location_name")
+        if location:
+            attrs["current_location"] = location
+
+        return attrs
 
     async def async_forecast_daily(self):
         """Generam lista cu prognoza pe urmatoarele zile."""
