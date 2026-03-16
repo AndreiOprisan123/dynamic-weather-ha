@@ -10,25 +10,28 @@
   <img src="https://img.shields.io/github/license/AndreiOprisan123/dynamic-weather-ha?style=flat-square" alt="License">
 </p>
 
-A smart Home Assistant integration that tracks weather, **air quality, and pollen data exactly at your current location** (or your car's location) using dynamic GPS coordinates from `person` or `device_tracker` entities.
+A smart Home Assistant integration that tracks weather, **air quality, and pollen data exactly at your current location** (or your car's location) using dynamic GPS coordinates from `person` or `device_tracker` entities. 
 
-Unlike standard integrations that use a fixed home address, this one follows you wherever you go!
+**NEW in v1.1.0:** Now includes Reverse Geocoding (street/city names), a massive Air Quality & Pollen expansion, a Health Risk Assistant, and a Manual Location mode!
 
 ## ✨ Key Features
 
 * 📍 **Real-time Location Tracking:** Automatically updates data based on the dynamic coordinates of your tracked entity (refreshes every 30 minutes).
-* 🤧 **Health & Allergy Focus (NEW):** Tracks European AQI, PM 2.5, and 5 types of Pollen (Alder, Birch, Grass, Mugwort, Ragweed) based on your exact location.
+* 🗺️ **Reverse Geocoding:** Sensors now display your actual location (Street, City) in their attributes so you always know exactly where the data is coming from.
+* 📌 **Manual Location Mode:** Don't want to track an entity? You can now set a fixed location via a map pin for your home, office, or cabin.
+* 😷 **Advanced Air Quality (Global):** Tracks European AQI, PM2.5, PM10, Ozone (O3), Nitrogen Dioxide (NO2), Sulphur Dioxide (SO2), and Carbon Monoxide (CO).
+* 🤧 **Complete Pollen Tracking:** Monitors Alder, Birch, Grass, Mugwort, Ragweed, and Olive pollen.
+* 🏥 **Health Risk Assistant:** Automatically translates raw pollen/pollution data into human-readable risk levels (`Low`, `Moderate`, `High`, `Poor`) in the sensor attributes for extremely easy automations.
 * 💧 **Smart Rain Sensor:** A dedicated binary sensor designed to trigger fast automations for open windows or sunroofs.
 * 📊 **Comprehensive Weather Sensors:** Temperature, Wind Speed, Live UV Index, Max Daily UV Index, Humidity, and Pressure.
 * 📅 **5-Day Forecast:** Integrated native Home Assistant weather entity with daily predictions.
-* ⚙️ **Easy UI Configuration:** Fully configurable via the Integrations menu—no YAML required. Pick and choose exactly which sensors you need.
-* ☁️ **Reliable Data:** Powered by the free Open-Meteo & Air Quality APIs (no API key needed, extremely generous rate limits).
+* ☁️ **Reliable Data:** Powered by the free Open-Meteo, Air Quality, and OpenStreetMap APIs (no API keys needed, extremely generous rate limits).
 
 ## 💡 Why use this? (Automations & Use Cases)
 
-* **🚗 The Smart Car:** Parked your car at work across town? If the integration detects rain starting at the *car's specific location* (not your home), Home Assistant can send you a critical alert to close the sunroof.
-* **🤧 Personal Allergy Alerts:** Traveling to a different city? Have Home Assistant send a notification to your phone to take your allergy medication if the *Ragweed or Grass Pollen* levels are high where you currently are.
-* **🪟 Air Quality Protection:** Automatically notify your family to close the windows or turn on the AC air purifier if the PM2.5 or AQI reaches unhealthy levels in the area they are currently visiting.
+* **🚗 The Smart Car:** If the integration detects rain starting at your *car's specific parked location*, Home Assistant can send you a critical alert to close the sunroof.
+* **🤧 Personal Allergy Alerts:** Automate a notification: *"Take your allergy medication!"* if the `health_risk` attribute for Ragweed or Grass pollen changes to `High` at your current location.
+* **🪟 Air Quality Protection:** Automatically notify your family to close the windows if PM2.5, NO2 (traffic pollution), or Ozone reaches unhealthy levels in the area they are currently visiting.
 * **☀️ Sun Protection:** Get an alert before leaving your current location if the UV Index goes above a dangerous threshold.
 
 ## 🚀 Installation
@@ -50,7 +53,7 @@ Unlike standard integrations that use a fixed home address, this one follows you
 1. Go to **Settings > Devices & Services**.
 2. Click **+ Add Integration**.
 3. Search for **Dynamic Location Weather**.
-4. Follow the setup wizard to select your tracked entity and desired sensors.
+4. Follow the setup wizard to select your tracked entity (or set a manual pin) and pick your desired sensors.
 
 ## ☕ Support my work
 If this integration saved your car's interior from rain, helped you avoid an allergy attack, or just made your smart home better, consider supporting my work!
