@@ -7,5 +7,5 @@
   "iot_class": "cloud_polling",
   "issue_tracker": "https://github.com/AndreiOprisan123/dynamic-weather-ha/issues",
   "requirements": [],
-  "version": "1.1.4"
+  "version": "1.1.5"
 }
