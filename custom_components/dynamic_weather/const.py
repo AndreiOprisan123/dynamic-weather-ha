@@ -40,3 +40,6 @@ CONF_TRACK_GRASS = "grass_pollen"       # Graminee (Iarba)
 CONF_TRACK_MUGWORT = "mugwort_pollen"   # Pelin
 CONF_TRACK_RAGWEED = "ragweed_pollen"   # Ambrozie
 CONF_TRACK_OLIVE = "olive_pollen"       # Maslin (International)
+
+CONF_WEATHER_INTERVAL = "weather_interval"
+CONF_AQI_INTERVAL = "aqi_interval"
