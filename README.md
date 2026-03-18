@@ -55,6 +55,202 @@ A smart Home Assistant integration that tracks weather, **air quality, and polle
 3. Search for **Dynamic Location Weather**.
 4. Follow the setup wizard to select your tracked entity (or set a manual pin) and pick your desired sensors.
 
+## 📊 Dashboard Example (No Custom Cards Required)
+
+Here is a complete, ready-to-use dashboard configuration using **100% standard Home Assistant cards**. It includes weather forecasts, UV gauges with WHO standard colors, and beautifully indented health risk attributes for air quality and pollen.
+
+> **⚠️ IMPORTANT NOTE:** > This YAML example assumes you named your integration instance **`home`** when setting it up (which generates entities like `weather.dynamic_weather_home`). 
+> 
+> If you named your instance something else (e.g., `work`, `vacation`), please use a text editor to **Find and Replace** `_home` with your actual instance name (e.g., `_work`) before pasting this code into your Home Assistant dashboard.
+
+```yaml
+type: vertical-stack
+cards:
+  # --- 1. WEATHER FORECAST ---
+  - type: weather-forecast
+    entity: weather.dynamic_weather_home
+    show_current: true
+    show_forecast: true
+    forecast_type: daily
+
+  # --- 2. LOCATION & SYNC ---
+  - type: entities
+    title: 📍 Location & Sync
+    entities:
+      - type: attribute
+        entity: weather.dynamic_weather_home
+        attribute: current_location
+        name: Current Address
+        icon: mdi:map-marker
+      - entity: weather.dynamic_weather_home
+        name: API Sync Status
+        icon: mdi:cloud-sync
+        secondary_info: last-updated
+
+  # --- 3. QUICK WEATHER STATS ---
+  - type: glance
+    entities:
+      - entity: sensor.dynamic_weather_home_temperature
+        name: Temp
+      - entity: sensor.dynamic_weather_home_precipitation_probability
+        name: Rain %
+      - entity: binary_sensor.dynamic_weather_home_is_raining
+        name: Raining
+      - entity: sensor.dynamic_weather_home_wind_speed
+        name: Wind
+      - entity: sensor.dynamic_weather_home_humidity
+        name: Humidity
+    columns: 5
+
+  # --- 4. UV INDEX (WHO Standard Colors) ---
+  - type: grid
+    columns: 2
+    cards:
+      - type: gauge
+        entity: sensor.dynamic_weather_home_live_uv_index
+        name: Live UV
+        min: 0
+        max: 12
+        segments:
+          - from: 0
+            color: "#2ecc71"
+          - from: 3
+            color: "#f1c40f"
+          - from: 6
+            color: "#e67e22"
+          - from: 8
+            color: "#e74c3c"
+          - from: 11
+            color: "#9b59b6"
+      - type: gauge
+        entity: sensor.dynamic_weather_home_max_uv_index
+        name: Max UV Today
+        min: 0
+        max: 12
+        segments:
+          - from: 0
+            color: "#2ecc71"
+          - from: 3
+            color: "#f1c40f"
+          - from: 6
+            color: "#e67e22"
+          - from: 8
+            color: "#e74c3c"
+          - from: 11
+            color: "#9b59b6"
+
+  # --- 5. AIR QUALITY ---
+  - type: entities
+    title: 🍃 Air Quality
+    entities:
+      - entity: sensor.dynamic_weather_home_air_quality_aqi
+        name: AQI (General)
+      - type: attribute
+        entity: sensor.dynamic_weather_home_air_quality_aqi
+        attribute: health_risk
+        name: "↳ Health Risk"
+        icon: mdi:heart-pulse
+
+      - entity: sensor.dynamic_weather_home_pm_2_5
+        name: PM 2.5
+      - type: attribute
+        entity: sensor.dynamic_weather_home_pm_2_5
+        attribute: health_risk
+        name: "↳ Health Risk"
+        icon: mdi:heart-pulse
+
+      - entity: sensor.dynamic_weather_home_pm_10
+        name: PM 10
+      - type: attribute
+        entity: sensor.dynamic_weather_home_pm_10
+        attribute: health_risk
+        name: "↳ Health Risk"
+        icon: mdi:heart-pulse
+
+      - entity: sensor.dynamic_weather_home_ozone
+        name: Ozone (O3)
+      - type: attribute
+        entity: sensor.dynamic_weather_home_ozone
+        attribute: health_risk
+        name: "↳ Health Risk"
+        icon: mdi:heart-pulse
+
+      - entity: sensor.dynamic_weather_home_nitrogen_dioxide
+        name: Nitrogen Dioxide (NO2)
+      - type: attribute
+        entity: sensor.dynamic_weather_home_nitrogen_dioxide
+        attribute: health_risk
+        name: "↳ Health Risk"
+        icon: mdi:heart-pulse
+
+      - entity: sensor.dynamic_weather_home_sulphur_dioxide
+        name: Sulphur Dioxide (SO2)
+      - type: attribute
+        entity: sensor.dynamic_weather_home_sulphur_dioxide
+        attribute: health_risk
+        name: "↳ Health Risk"
+        icon: mdi:heart-pulse
+
+      - entity: sensor.dynamic_weather_home_carbon_monoxide
+        name: Carbon Monoxide (CO)
+      - type: attribute
+        entity: sensor.dynamic_weather_home_carbon_monoxide
+        attribute: health_risk
+        name: "↳ Health Risk"
+        icon: mdi:heart-pulse
+
+  # --- 6. POLLEN LEVELS ---
+  - type: entities
+    title: 🌼 Allergy & Pollen Levels
+    entities:
+      - entity: sensor.dynamic_weather_home_ragweed_pollen
+        name: Ragweed Pollen
+      - type: attribute
+        entity: sensor.dynamic_weather_home_ragweed_pollen
+        attribute: health_risk
+        name: "↳ Risk Level"
+        icon: mdi:alert-circle-outline
+
+      - entity: sensor.dynamic_weather_home_grass_pollen
+        name: Grass Pollen
+      - type: attribute
+        entity: sensor.dynamic_weather_home_grass_pollen
+        attribute: health_risk
+        name: "↳ Risk Level"
+        icon: mdi:alert-circle-outline
+
+      - entity: sensor.dynamic_weather_home_birch_pollen
+        name: Birch Pollen
+      - type: attribute
+        entity: sensor.dynamic_weather_home_birch_pollen
+        attribute: health_risk
+        name: "↳ Risk Level"
+        icon: mdi:alert-circle-outline
+
+      - entity: sensor.dynamic_weather_home_alder_pollen
+        name: Alder Pollen
+      - type: attribute
+        entity: sensor.dynamic_weather_home_alder_pollen
+        attribute: health_risk
+        name: "↳ Risk Level"
+        icon: mdi:alert-circle-outline
+
+      - entity: sensor.dynamic_weather_home_olive_pollen
+        name: Olive Pollen
+      - type: attribute
+        entity: sensor.dynamic_weather_home_olive_pollen
+        attribute: health_risk
+        name: "↳ Risk Level"
+        icon: mdi:alert-circle-outline
+
+      - entity: sensor.dynamic_weather_home_mugwort_pollen
+        name: Mugwort Pollen
+      - type: attribute
+        entity: sensor.dynamic_weather_home_mugwort_pollen
+        attribute: health_risk
+        name: "↳ Risk Level"
+        icon: mdi:alert-circle-outline
+
 ## 📖 The Backstory (Or: How a wet car seat started it all)
 Every good project starts with a frustrating problem. For me, it was leaving my car's sunroof open. 
 One day, a storm hit. I wasn't worried because I had a smart home automation set up to warn me about rain, right? Wrong. The automation checked the weather *at my house*, but I was in another town. My car got completely soaked. 🤦‍♂️ 

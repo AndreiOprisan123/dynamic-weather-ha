@@ -279,7 +279,7 @@ class DynamicWeatherSensor(CoordinatorEntity, SensorEntity):
 
     @property
     def extra_state_attributes(self):
-        """Return extra attributes (Location and Health Risk)."""
+        """Return extra attributes (Location, Health Risk and Risk Options)."""
         attrs = {}
         
         if not self.coordinator.data:
@@ -295,6 +295,19 @@ class DynamicWeatherSensor(CoordinatorEntity, SensorEntity):
             risk = self._calculate_health_risk(self.conf_key, val)
             if risk:
                 attrs["health_risk"] = risk
+                
+                # --- NOU: Adaugam lista de optiuni pentru automatizari ---
+                # 1. Optiuni pentru Polen
+                if self.conf_key in [CONF_TRACK_ALDER, CONF_TRACK_BIRCH, CONF_TRACK_GRASS, CONF_TRACK_MUGWORT, CONF_TRACK_RAGWEED, CONF_TRACK_OLIVE]:
+                    attrs["health_risk_options"] = ["Low", "Moderate", "High"]
+                    
+                # 2. Optiuni pentru Calitatea Aerului (Gaze + Particule)
+                elif self.conf_key in [CONF_TRACK_AQI, CONF_TRACK_PM25, CONF_TRACK_PM10, CONF_TRACK_OZONE, CONF_TRACK_NO2, CONF_TRACK_SO2, CONF_TRACK_CO]:
+                    attrs["health_risk_options"] = ["Good", "Moderate", "Poor"]
+                    
+                # 3. Optiuni pentru UV (Soare)
+                elif self.conf_key in [CONF_TRACK_UV, CONF_TRACK_UV_MAX]:
+                    attrs["health_risk_options"] = ["Low", "Moderate", "High", "Very High", "Extreme"]
 
         return attrs
     
@@ -308,25 +321,13 @@ class DynamicWeatherSensor(CoordinatorEntity, SensorEntity):
             "model": "Location Tracker"
         }
     
-    def _calculate_health_risk(self, sensor_type, value):
-        """Calculate human-readable risk levels."""
+    def _calculate_health_risk(self, sensor_type: str, value) -> str | None:    
+        """Calculeaza nivelul de risc pe baza valorii (dupa standarde)."""
         try:
             v = float(value)
-        except (TypeError, ValueError):
+        except (ValueError, TypeError):
             return None
 
-        # Pollen thresholds (grains/m3)
-        if sensor_type in [CONF_TRACK_ALDER, CONF_TRACK_BIRCH, CONF_TRACK_GRASS, CONF_TRACK_MUGWORT, CONF_TRACK_RAGWEED, CONF_TRACK_OLIVE]:
-            if v < 15: return "Low"
-            if v < 50: return "Moderate"
-            return "High"
-            
-        # Air Quality Index (European)
-        if sensor_type == CONF_TRACK_AQI:
-            if v <= 50: return "Good"
-            if v <= 100: return "Moderate"
-            return "Poor"
-            
         # PM 2.5
         if sensor_type == CONF_TRACK_PM25:
             if v <= 15: return "Good"
@@ -335,27 +336,87 @@ class DynamicWeatherSensor(CoordinatorEntity, SensorEntity):
             
         # PM 10
         if sensor_type == CONF_TRACK_PM10:
-            if v <= 25: return "Good"
-            if v <= 50: return "Moderate"
+            if v <= 45: return "Good"
+            if v <= 90: return "Moderate"
             return "Poor"
+            
+        # European AQI
+        if sensor_type == CONF_TRACK_AQI:
+            if v <= 40: return "Good"
+            if v <= 80: return "Moderate"
+            return "Poor"
+
+        # Ozone (O3)
+        if sensor_type == CONF_TRACK_OZONE:
+            if v <= 60: return "Good"
+            if v <= 120: return "Moderate"
+            return "Poor"
+
+        # Nitrogen Dioxide (NO2)
+        if sensor_type == CONF_TRACK_NO2:
+            if v <= 40: return "Good"
+            if v <= 120: return "Moderate"
+            return "Poor"
+
+        # Sulphur Dioxide (SO2)
+        if sensor_type == CONF_TRACK_SO2:
+            if v <= 50: return "Good"
+            if v <= 100: return "Moderate"
+            return "Poor"
+
+        # Carbon Monoxide (CO)
+        if sensor_type == CONF_TRACK_CO:
+            if v <= 5000: return "Good"     # Open-Meteo da CO in ug/m3
+            if v <= 10000: return "Moderate"
+            return "Poor"
+
+        # UV Index (Live & Max)
+        if sensor_type in [CONF_TRACK_UV, CONF_TRACK_UV_MAX]:
+            if v < 3: return "Low"
+            if v < 6: return "Moderate"
+            if v < 8: return "High"
+            if v < 11: return "Very High"
+            return "Extreme"
+
+        # Pollen (Toate tipurile)
+        pollen_sensors = [
+            CONF_TRACK_ALDER, CONF_TRACK_BIRCH, CONF_TRACK_GRASS, 
+            CONF_TRACK_MUGWORT, CONF_TRACK_RAGWEED, CONF_TRACK_OLIVE
+        ]
+        if sensor_type in pollen_sensors:
+            if v < 10: return "Low"
+            if v < 50: return "Moderate"
+            return "High"
 
         return None
 
-class DynamicWeatherGlobalApiSensor(CoordinatorEntity, SensorEntity):
-    """Senzor de diagnostic GLOBAL (apare o singura data)."""
-
-    _attr_icon = "mdi:api"
-    _attr_native_unit_of_measurement = "req/day"
-    _attr_state_class = SensorStateClass.MEASUREMENT
-    _attr_entity_category = EntityCategory.DIAGNOSTIC
-
-    def __init__(self, coordinator, entry_id):
-        super().__init__(coordinator)
-        self._attr_name = "Global API Usage"
-        # ID static ca sa existe unul singur in tot sistemul
-        self._attr_unique_id = "dynamic_weather_global_api_usage_monitor"
-
     @property
-    def native_value(self):
-        return int(calculate_api_requests(self.hass))
+    def extra_state_attributes(self):
+        """Return extra attributes (Location, Health Risk and Risk Options)."""
+        attrs = {}
+        
+        if not self.coordinator.data:
+            return attrs
+
+        location = self.coordinator.data.get("location_name")
+        if location:
+            attrs["current_location"] = location
+
+        val = self.native_value
+        if val is not None:
+            risk = self._calculate_health_risk(self.conf_key, val)
+            if risk:
+                attrs["health_risk"] = risk
+                
+                # --- NOU: Adaugam lista de optiuni pentru automatizari ---
+                if self.conf_key in [CONF_TRACK_ALDER, CONF_TRACK_BIRCH, CONF_TRACK_GRASS, CONF_TRACK_MUGWORT, CONF_TRACK_RAGWEED, CONF_TRACK_OLIVE]:
+                    attrs["health_risk_options"] = ["Low", "Moderate", "High"]
+                    
+                elif self.conf_key in [CONF_TRACK_AQI, CONF_TRACK_PM25, CONF_TRACK_PM10, CONF_TRACK_OZONE, CONF_TRACK_NO2, CONF_TRACK_SO2, CONF_TRACK_CO]:
+                    attrs["health_risk_options"] = ["Good", "Moderate", "Poor"]
+                    
+                elif self.conf_key in [CONF_TRACK_UV, CONF_TRACK_UV_MAX]:
+                    attrs["health_risk_options"] = ["Low", "Moderate", "High", "Very High", "Extreme"]
+
+        return attrs
 

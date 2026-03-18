@@ -43,3 +43,6 @@ CONF_TRACK_OLIVE = "olive_pollen"       # Maslin (International)
 
 CONF_WEATHER_INTERVAL = "weather_interval"
 CONF_AQI_INTERVAL = "aqi_interval"
+
+# Setari Avansate (Smart Cache)
+CONF_ENABLE_SMART_CACHE = "enable_smart_cache"

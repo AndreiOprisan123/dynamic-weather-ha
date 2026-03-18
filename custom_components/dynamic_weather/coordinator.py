@@ -1,6 +1,8 @@
 """DataUpdateCoordinator pentru Dynamic Weather."""
 import logging
 from datetime import timedelta
+import homeassistant.util.dt as dt_util
+from homeassistant.util.location import distance
 
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator, UpdateFailed
@@ -12,13 +14,13 @@ from .const import (
     CONF_LATITUDE, 
     CONF_LONGITUDE,
     CONF_WEATHER_INTERVAL,
-    CONF_AQI_INTERVAL
+    CONF_AQI_INTERVAL,
+    CONF_ENABLE_SMART_CACHE
 )
 
 _LOGGER = logging.getLogger(__name__)
 
 # CACHE PENTRU NOMINATIM (Protejeaza impotriva ban-urilor IP)
-# Tine minte adresele deja cautate. Daca coordonatele nu se schimba, nu mai facem request pe net.
 _LOCATION_CACHE = {}
 
 async def _async_get_location_data(hass: HomeAssistant, entry_data: dict, session):
@@ -51,7 +53,7 @@ async def _async_get_location_data(hass: HomeAssistant, entry_data: dict, sessio
     # 3. Daca nu e in cache, cautam pe net (Reverse Geocoding)
     location_name = "Locatie Necunoscuta"
     try:
-        headers = {"User-Agent": "DynamicWeatherHomeAssistant/1.2.0"}
+        headers = {"User-Agent": "DynamicWeatherHomeAssistant/1.3.0"}
         geocode_url = f"https://nominatim.openstreetmap.org/reverse?lat={lat}&lon={lon}&format=jsonv2"
         
         geo_res = await session.get(geocode_url, headers=headers)
@@ -86,9 +88,16 @@ class WeatherCoordinator(DataUpdateCoordinator):
         """Initializam coordinatorul de vreme."""
         self.config_entry = config_entry
         
-        # Citim intervalul din options (daca a fost modificat de user pe rotita) sau din instalare
+        # Citim intervalul din options sau din instalare
         settings = {**config_entry.data, **config_entry.options}
         interval_minutes = settings.get(CONF_WEATHER_INTERVAL, 15)
+
+        # --- SMART GEO-CACHE MEMORY (VREME) ---
+        self.last_api_lat = None
+        self.last_api_lon = None
+        self.last_api_call_time = None
+        self.smart_cache_enabled = settings.get(CONF_ENABLE_SMART_CACHE, True)
+        self.cache_timeout_minutes = 7  # <--- Pragul de 7 minute pentru vreme
 
         super().__init__(
             hass,
@@ -102,6 +111,22 @@ class WeatherCoordinator(DataUpdateCoordinator):
         session = async_get_clientsession(self.hass)
         lat, lon, location_name = await _async_get_location_data(self.hass, self.config_entry.data, session)
 
+        now = dt_util.utcnow()
+
+        # --- SMART GEO-CACHE LOGIC ---
+        if self.smart_cache_enabled and self.last_api_lat is not None and self.data is not None:
+            moved_distance = distance(lat, lon, self.last_api_lat, self.last_api_lon)
+            time_elapsed_minutes = (now - self.last_api_call_time).total_seconds() / 60.0
+            
+            if moved_distance < 2000 and time_elapsed_minutes < self.cache_timeout_minutes:
+                _LOGGER.debug(
+                    "Smart Cache VREME ACTIV: Distanta %sm, Timp %s min. Refolosim datele din memorie!", 
+                    round(moved_distance, 1), round(time_elapsed_minutes, 1)
+                )
+                return self.data  # Ne oprim aici, nu lovim API-ul Open-Meteo
+
+        # Daca am ajuns aici, facem request la API
+        _LOGGER.debug("Descarcam date noi METEO de la Open-Meteo...")
         weather_url = (
             f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
             "&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index,rain,showers,weather_code,is_day"
@@ -113,6 +138,11 @@ class WeatherCoordinator(DataUpdateCoordinator):
             weather_res = await session.get(weather_url)
             weather_data = await weather_res.json()
             
+            # Actualizam memoria cache cu noile coordonate si noul timp
+            self.last_api_lat = lat
+            self.last_api_lon = lon
+            self.last_api_call_time = now
+
             return {
                 "weather": weather_data,
                 "location_name": location_name
@@ -132,6 +162,13 @@ class AqiCoordinator(DataUpdateCoordinator):
         settings = {**config_entry.data, **config_entry.options}
         interval_minutes = settings.get(CONF_AQI_INTERVAL, 60)
 
+        # --- SMART GEO-CACHE MEMORY (AER) ---
+        self.last_api_lat = None
+        self.last_api_lon = None
+        self.last_api_call_time = None
+        self.smart_cache_enabled = settings.get(CONF_ENABLE_SMART_CACHE, True)
+        self.cache_timeout_minutes = 29  # <--- Pragul de 29 minute pentru aer/polen
+
         super().__init__(
             hass,
             _LOGGER,
@@ -144,6 +181,22 @@ class AqiCoordinator(DataUpdateCoordinator):
         session = async_get_clientsession(self.hass)
         lat, lon, location_name = await _async_get_location_data(self.hass, self.config_entry.data, session)
 
+        now = dt_util.utcnow()
+
+        # --- SMART GEO-CACHE LOGIC ---
+        if self.smart_cache_enabled and self.last_api_lat is not None and self.data is not None:
+            moved_distance = distance(lat, lon, self.last_api_lat, self.last_api_lon)
+            time_elapsed_minutes = (now - self.last_api_call_time).total_seconds() / 60.0
+            
+            if moved_distance < 2000 and time_elapsed_minutes < self.cache_timeout_minutes:
+                _LOGGER.debug(
+                    "Smart Cache AER ACTIV: Distanta %sm, Timp %s min. Refolosim datele din memorie!", 
+                    round(moved_distance, 1), round(time_elapsed_minutes, 1)
+                )
+                return self.data  # Ne oprim aici, nu lovim API-ul Open-Meteo
+
+        # Daca am ajuns aici, facem request la API
+        _LOGGER.debug("Descarcam date noi AER/POLEN de la Open-Meteo...")
         aq_url = (
             f"https://air-quality-api.open-meteo.com/v1/air-quality?latitude={lat}&longitude={lon}"
             "&current=european_aqi,pm10,pm2_5,ozone,nitrogen_dioxide,sulphur_dioxide,carbon_monoxide,"
@@ -155,6 +208,11 @@ class AqiCoordinator(DataUpdateCoordinator):
             aq_res = await session.get(aq_url)
             aq_data = await aq_res.json()
             
+            # Actualizam memoria cache cu noile coordonate si noul timp
+            self.last_api_lat = lat
+            self.last_api_lon = lon
+            self.last_api_call_time = now
+
             return {
                 "air_quality": aq_data,
                 "location_name": location_name

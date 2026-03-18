@@ -10,33 +10,14 @@
                     "use_manual_location": "Use Manual Location (Fixed Pin)",
                     "latitude": "Latitude",
                     "longitude": "Longitude",
-
+                    "enable_smart_cache": "Enable Smart Geo-Cache (Save API Limits)",
                     "weather_interval": "🌤️ WEATHER UPDATE INTERVAL (minutes)",
-                    "create_weather_entity": "└─ Create Weather Forecast Entity",
-                    "track_is_raining": "└─ Enable 'Is Raining' Binary Sensor",
-                    "temperature": "└─ Enable Temperature Sensor",
-                    "wind_speed": "└─ Enable Wind Speed Sensor",
-                    "rain_chance": "└─ Enable Precipitation Probability",
-                    "uv_index": "└─ Enable Live UV Index",
-                    "uv_index_max": "└─ Enable Max Daily UV Index",
-                    "humidity": "└─ Enable Humidity",
-                    "pressure": "└─ Enable Pressure",
-
+                    "weather_sensors": "☁️ Choose Weather Sensors",
                     "aqi_interval": "🌍 AQI & POLLEN UPDATE INTERVAL (minutes)",
-                    "european_aqi": "└─ Enable Air Quality (AQI)",
-                    "pm2_5": "└─ Enable PM 2.5 (Fine Particles)",
-                    "pm10": "└─ Enable PM 10 (Dust)",
-                    "ozone": "└─ Enable Ozone (O3)",
-                    "nitrogen_dioxide": "└─ Enable Nitrogen Dioxide (NO2)",
-                    "sulphur_dioxide": "└─ Enable Sulphur Dioxide (SO2)",
-                    "carbon_monoxide": "└─ Enable Carbon Monoxide (CO)",
-                    
-                    "alder_pollen": "└─ Enable Alder Pollen Sensor",
-                    "birch_pollen": "└─ Enable Birch Pollen Sensor",
-                    "grass_pollen": "└─ Enable Grass Pollen Sensor",
-                    "mugwort_pollen": "└─ Enable Mugwort Pollen Sensor",
-                    "ragweed_pollen": "└─ Enable Ragweed Pollen Sensor",
-                    "olive_pollen": "└─ Enable Olive Pollen Sensor"
+                    "aqi_sensors": "🍃 Choose Air Quality & Pollen Sensors"
+                },
+                "data_description": {
+                    "enable_smart_cache": "Highly Recommended! Prevents unnecessary API calls by reusing data if the tracked entity hasn't moved more than 2km within the last 7 minutes (Weather) or 29 minutes (Air Quality)."
                 }
             }
         },
@@ -50,35 +31,17 @@
     "options": {
         "step": {
             "init": {
-                "title": "Configure Refresh Rates",
-                "description": "Set the update interval in minutes.\n\n📊 **Current Global Usage:** {current_requests} / 10,000 requests per day.\n\n💡 **Note:** If you uncheck a sensor here, its entity will be automatically deleted from your system as soon as you click Submit.",
+                "title": "Configure Refresh Rates & Sensors",
+                "description": "Set the update interval and select which sensors you want active.\n\n📊 **Current Global Usage:** {current_requests} / 10,000 requests per day.\n\n💡 **Note:** If you uncheck a sensor here, its entity will be automatically deleted from your system as soon as you click Submit.",
                 "data": {
+                    "enable_smart_cache": "Enable Smart Geo-Cache (Save API Limits)",
                     "weather_interval": "🌤️ WEATHER UPDATE INTERVAL (minutes)",
-                    "create_weather_entity": "└─ Create Weather Forecast Entity",
-                    "track_is_raining": "└─ Enable 'Is Raining' Binary Sensor",
-                    "temperature": "└─ Enable Temperature Sensor",
-                    "wind_speed": "└─ Enable Wind Speed Sensor",
-                    "rain_chance": "└─ Enable Precipitation Probability",
-                    "uv_index": "└─ Enable Live UV Index",
-                    "uv_index_max": "└─ Enable Max Daily UV Index",
-                    "humidity": "└─ Enable Humidity",
-                    "pressure": "└─ Enable Pressure",
-
+                    "weather_sensors": "☁️ Choose Weather Sensors",
                     "aqi_interval": "🌍 AQI & POLLEN UPDATE INTERVAL (minutes)",
-                    "european_aqi": "└─ Enable Air Quality (AQI)",
-                    "pm2_5": "└─ Enable PM 2.5 (Fine Particles)",
-                    "pm10": "└─ Enable PM 10 (Dust)",
-                    "ozone": "└─ Enable Ozone (O3)",
-                    "nitrogen_dioxide": "└─ Enable Nitrogen Dioxide (NO2)",
-                    "sulphur_dioxide": "└─ Enable Sulphur Dioxide (SO2)",
-                    "carbon_monoxide": "└─ Enable Carbon Monoxide (CO)",
-                    
-                    "alder_pollen": "└─ Enable Alder Pollen Sensor",
-                    "birch_pollen": "└─ Enable Birch Pollen Sensor",
-                    "grass_pollen": "└─ Enable Grass Pollen Sensor",
-                    "mugwort_pollen": "└─ Enable Mugwort Pollen Sensor",
-                    "ragweed_pollen": "└─ Enable Ragweed Pollen Sensor",
-                    "olive_pollen": "└─ Enable Olive Pollen Sensor"
+                    "aqi_sensors": "🍃 Choose Air Quality & Pollen Sensors"
+                },
+                "data_description": {
+                    "enable_smart_cache": "Highly Recommended! Prevents unnecessary API calls by reusing data if the tracked entity hasn't moved more than 2km within the last 7 minutes (Weather) or 29 minutes (Air Quality)."
                 }
             }
         },
