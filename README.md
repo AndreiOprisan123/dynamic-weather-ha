@@ -250,6 +250,7 @@ cards:
         attribute: health_risk
         name: "↳ Risk Level"
         icon: mdi:alert-circle-outline
+```
 
 ## 📖 The Backstory (Or: How a wet car seat started it all)
 Every good project starts with a frustrating problem. For me, it was leaving my car's sunroof open. 
