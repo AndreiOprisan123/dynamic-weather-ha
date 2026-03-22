@@ -58,15 +58,28 @@ class DynamicWeatherRainingSensor(CoordinatorEntity, BinarySensorEntity):
     
     @property
     def is_on(self):
-        """Return true if it is raining."""
+        """Return true if it is raining based on volume OR weather code."""
         if not self.coordinator.data:
             return False
             
         weather_data = self.coordinator.data.get("weather", {})
-        rain = weather_data.get("current", {}).get("rain", 0)
-        showers = weather_data.get("current", {}).get("showers", 0)
+        current = weather_data.get("current", {})
         
-        return rain > 0 or showers > 0
+        rain = current.get("rain", 0.0)
+        showers = current.get("showers", 0.0)
+        wmo_code = current.get("weather_code", 0)
+        
+        # WMO Codes conform Open-Meteo:
+        # 51, 53, 55 (Burniță / Drizzle)
+        # 56, 57 (Burniță înghețată)
+        # 61, 63, 65 (Ploaie standard)
+        # 66, 67 (Ploaie înghețată)
+        # 80, 81, 82 (Averse / Showers)
+        # 95, 96, 99 (Furtună / Thunderstorm cu ploaie)
+        rain_codes = {51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99}
+        
+        # Plouă dacă volumul e > 0 SAU dacă codul meteo zice că e o formă de ploaie
+        return rain > 0 or showers > 0 or wmo_code in rain_codes    
     @property
     def device_info(self):
         return {
