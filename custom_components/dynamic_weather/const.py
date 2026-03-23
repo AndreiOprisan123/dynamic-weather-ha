@@ -46,3 +46,5 @@ CONF_AQI_INTERVAL = "aqi_interval"
 
 # Setari Avansate (Smart Cache)
 CONF_ENABLE_SMART_CACHE = "enable_smart_cache"
+CONF_TRACK_DAILY_RAIN = "track_daily_rain"
+CONF_TRACK_BETA_IS_RAINING = "track_beta_is_raining"

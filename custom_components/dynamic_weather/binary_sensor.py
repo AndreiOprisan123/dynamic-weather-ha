@@ -8,6 +8,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers import entity_registry as er
+from homeassistant.util import dt as dt_util
 
 from .const import DOMAIN, CONF_NAME, CONF_ENTITY_ID, CONF_TRACK_IS_RAINING
 
@@ -27,14 +28,20 @@ async def async_setup_entry(
             registry.async_remove(entity_to_delete)
         return
 
-    # Daca e BIFAT -> Il adaugam
+    # Daca e BIFAT -> Il adaugam pe amandoi
     coordinator = hass.data[DOMAIN][entry.entry_id]["weather"]
     custom_name = settings.get(CONF_NAME, "Tracker")
-    async_add_entities([DynamicWeatherRainingSensor(coordinator, custom_name, entry.entry_id, entity_id)])
+    
+    entities = [
+        DynamicWeatherRainingSensor(coordinator, custom_name, entry.entry_id, entity_id),
+        DynamicWeatherBetaIsRainingSensor(coordinator, custom_name, entry.entry_id, entity_id)
+    ]
+    
+    async_add_entities(entities)
 
 
 class DynamicWeatherRainingSensor(CoordinatorEntity, BinarySensorEntity):
-    """Senzor binar care indica daca ploua la locatia urmarita."""
+    """Senzor binar care indica daca ploua la locatia urmarita (folosind starea curenta)."""
 
     _attr_device_class = BinarySensorDeviceClass.MOISTURE
     _attr_icon = "mdi:weather-pouring"
@@ -49,16 +56,8 @@ class DynamicWeatherRainingSensor(CoordinatorEntity, BinarySensorEntity):
         self._attr_unique_id = f"dynamic_weather_{source_name}_{entry_id}_is_raining"
 
     @property
-    def extra_state_attributes(self):
-        """Returneaza locatia curenta ca atribut pentru senzorul binar."""
-        attrs = {}
-        if self.coordinator.data and "location_name" in self.coordinator.data:
-            attrs["current_location"] = self.coordinator.data["location_name"]
-        return attrs
-    
-    @property
     def is_on(self):
-        """Return true if it is raining based on volume OR weather code."""
+        """Return True if it is raining based on volume OR weather code."""
         if not self.coordinator.data:
             return False
             
@@ -69,17 +68,154 @@ class DynamicWeatherRainingSensor(CoordinatorEntity, BinarySensorEntity):
         showers = current.get("showers", 0.0)
         wmo_code = current.get("weather_code", 0)
         
-        # WMO Codes conform Open-Meteo:
-        # 51, 53, 55 (Burniță / Drizzle)
-        # 56, 57 (Burniță înghețată)
-        # 61, 63, 65 (Ploaie standard)
-        # 66, 67 (Ploaie înghețată)
-        # 80, 81, 82 (Averse / Showers)
-        # 95, 96, 99 (Furtună / Thunderstorm cu ploaie)
         rain_codes = {51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99}
         
-        # Plouă dacă volumul e > 0 SAU dacă codul meteo zice că e o formă de ploaie
-        return rain > 0 or showers > 0 or wmo_code in rain_codes    
+        return bool(rain > 0 or showers > 0 or wmo_code in rain_codes)
+
+    @property
+    def extra_state_attributes(self):
+        """Return additional attributes for the sensor (combinate)."""
+        attrs = {}
+        if not self.coordinator.data:
+            return attrs
+            
+        # 1. Locatia
+        if "location_name" in self.coordinator.data:
+            attrs["current_location"] = self.coordinator.data["location_name"]
+            
+        # 2. Datele meteo
+        current = self.coordinator.data.get("weather", {}).get("current", {})
+        wmo_code = current.get("weather_code", 0)
+        
+        rain_descriptions = {
+            51: "Light Drizzle", 53: "Moderate Drizzle", 55: "Dense Drizzle",
+            56: "Light Freezing Drizzle", 57: "Dense Freezing Drizzle",
+            61: "Light Rain", 63: "Moderate Rain", 65: "Heavy Rain",
+            66: "Light Freezing Rain", 67: "Heavy Freezing Rain",
+            80: "Light Showers", 81: "Moderate Showers", 82: "Violent Showers",
+            95: "Thunderstorm", 96: "Thunderstorm with Light Hail", 99: "Thunderstorm with Heavy Hail"
+        }
+        
+        attrs["precipitation_type"] = rain_descriptions.get(wmo_code, "None")
+        attrs["raw_wmo_code"] = wmo_code
+        attrs["rain_volume_mm"] = current.get("rain", 0.0)
+        attrs["showers_volume_mm"] = current.get("showers", 0.0)
+        
+        return attrs
+
+    @property
+    def device_info(self):
+        return {
+            "identifiers": {(DOMAIN, self.entry_id)},
+            "name": self.custom_name,
+            "manufacturer": "Dynamic Weather",
+            "model": "Location Tracker"
+        }
+
+
+class DynamicWeatherBetaIsRainingSensor(CoordinatorEntity, BinarySensorEntity):
+    """Senzor Beta: Foloseste datele ultra-precise la 15 minute (Fara Paranoid Mode pe main state)."""
+
+    _attr_device_class = BinarySensorDeviceClass.MOISTURE
+    _attr_icon = "mdi:radar"
+
+    def __init__(self, coordinator, name, entry_id, entity_id):
+        super().__init__(coordinator)
+        self.entry_id = entry_id
+        self.custom_name = name
+        self._attr_name = f"Dynamic Weather {name} Beta Is Raining"
+        source_name = entity_id.split(".")[-1] if "." in entity_id else "manual"
+        self._attr_unique_id = f"dynamic_weather_{source_name}_{entry_id}_beta_is_raining"
+
+    @property
+    def is_on(self):
+        """Return True daca ploua ACUM (strict in sfertul de ora curent)."""
+        if not self.coordinator.data:
+            return False
+            
+        weather_data = self.coordinator.data.get("weather", {})
+        minutely = weather_data.get("minutely_15", {})
+        times = minutely.get("time", [])
+        
+        if not times:
+            return False
+            
+        now = dt_util.utcnow() 
+        minute_rounded = (now.minute // 15) * 15
+        current_slot_time = now.replace(minute=minute_rounded, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M")
+        
+        try:
+            idx = times.index(current_slot_time)
+        except ValueError:
+            return False
+            
+        wmo_codes = minutely.get("weather_code", [])
+        precips = minutely.get("precipitation", [])
+        rain_codes = {51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82, 95, 96, 99}
+        
+        # Ne uitam DOAR la indexul curent
+        if idx < len(wmo_codes) and idx < len(precips):
+            return bool(precips[idx] > 0 or wmo_codes[idx] in rain_codes)
+            
+        return False
+
+    @property
+    def extra_state_attributes(self):
+        """Adaugam atributele pentru sfertul de ora curent SI predictia pentru urmatorul."""
+        attrs = {}
+        if not self.coordinator.data:
+            return attrs
+            
+        if "location_name" in self.coordinator.data:
+            attrs["current_location"] = self.coordinator.data["location_name"]
+            
+        weather_data = self.coordinator.data.get("weather", {})
+        minutely = weather_data.get("minutely_15", {})
+        times = minutely.get("time", [])
+        
+        if not times:
+            return attrs
+            
+        now = dt_util.utcnow()
+        minute_rounded = (now.minute // 15) * 15
+        current_slot_time = now.replace(minute=minute_rounded, second=0, microsecond=0).strftime("%Y-%m-%dT%H:%M")
+        
+        try:
+            idx = times.index(current_slot_time)
+        except ValueError:
+            return attrs
+            
+        wmo_codes = minutely.get("weather_code", [])
+        precips = minutely.get("precipitation", [])
+        
+        if idx >= len(wmo_codes) or idx >= len(precips):
+            return attrs
+            
+        current_wmo = wmo_codes[idx]
+        
+        rain_descriptions = {
+            51: "Light Drizzle", 53: "Moderate Drizzle", 55: "Dense Drizzle",
+            61: "Light Rain", 63: "Moderate Rain", 65: "Heavy Rain",
+            80: "Light Showers", 81: "Moderate Showers", 82: "Violent Showers",
+            95: "Thunderstorm", 0: "Clear / None", 1: "Mainly Clear", 2: "Partly Cloudy", 3: "Overcast"
+        }
+        
+        # --- Datele ACUM ---
+        attrs["precipitation_type"] = rain_descriptions.get(current_wmo, "None")
+        attrs["raw_wmo_code"] = current_wmo
+        attrs["total_precipitation_mm"] = precips[idx]
+        
+        # --- Datele PESTE 15 MINUTE (Vederea in viitor) ---
+        if (idx + 1) < len(wmo_codes) and (idx + 1) < len(precips):
+            next_wmo = wmo_codes[idx + 1]
+            attrs["next_15_min_status"] = rain_descriptions.get(next_wmo, "None")
+            attrs["next_15_min_precip_mm"] = precips[idx + 1]
+            attrs["next_15_min_wmo"] = next_wmo
+            
+        attrs["data_source"] = "minutely_15_beta"
+        
+        return attrs
+
     @property
     def device_info(self):
         return {

@@ -44,13 +44,15 @@ from .const import (
     CONF_TRACK_RAGWEED,
     CONF_TRACK_OLIVE,
     CONF_ENABLE_SMART_CACHE,
+    CONF_TRACK_DAILY_RAIN,
+    CONF_TRACK_BETA_IS_RAINING
 )
 
 # Liste cu cheile pentru a face matematica usoara
 WEATHER_KEYS = [
     CONF_CREATE_WEATHER_ENTITY, CONF_TRACK_IS_RAINING, CONF_TRACK_TEMP,
     CONF_TRACK_WIND, CONF_TRACK_RAIN_CHANCE, CONF_TRACK_UV, CONF_TRACK_HUMIDITY,
-    CONF_TRACK_PRESSURE, CONF_TRACK_UV_MAX
+    CONF_TRACK_PRESSURE, CONF_TRACK_UV_MAX, CONF_TRACK_DAILY_RAIN, CONF_TRACK_BETA_IS_RAINING
 ]
 
 AQI_KEYS = [
@@ -64,9 +66,11 @@ AQI_KEYS = [
 WEATHER_OPTIONS = [
     SelectOptionDict(value=CONF_CREATE_WEATHER_ENTITY, label="Weather Forecast Entity"),
     SelectOptionDict(value=CONF_TRACK_IS_RAINING, label="'Is Raining' Binary Sensor"),
+    SelectOptionDict(value=CONF_TRACK_BETA_IS_RAINING, label="'Is Raining' BETA (15-Min Radar)"), # <-- ADAUGAT
     SelectOptionDict(value=CONF_TRACK_TEMP, label="Temperature"),
     SelectOptionDict(value=CONF_TRACK_WIND, label="Wind Speed"),
     SelectOptionDict(value=CONF_TRACK_RAIN_CHANCE, label="Precipitation Probability"),
+    SelectOptionDict(value=CONF_TRACK_DAILY_RAIN, label="Daily Precipitation (L/m²)"),          # <-- ADAUGAT
     SelectOptionDict(value=CONF_TRACK_HUMIDITY, label="Humidity"),
     SelectOptionDict(value=CONF_TRACK_PRESSURE, label="Pressure"),
     SelectOptionDict(value=CONF_TRACK_UV, label="Live UV Index"),
@@ -211,7 +215,7 @@ class DynamicWeatherOptionsFlow(config_entries.OptionsFlow):
         # --- Reconstruim lista de selectate pe baza salvarilor vechi ---
         current_weather_selection = []
         for k in WEATHER_KEYS:
-            default_val = False if k == CONF_TRACK_UV_MAX else True
+            default_val = False if k == CONF_TRACK_BETA_IS_RAINING else True
             if settings.get(k, default_val):
                 current_weather_selection.append(k)
 

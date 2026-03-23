@@ -36,6 +36,7 @@ from .const import (
     CONF_TRACK_MUGWORT,
     CONF_TRACK_RAGWEED,
     CONF_TRACK_OLIVE,
+    CONF_TRACK_DAILY_RAIN
 )
 
 # Am adaugat "type" la fiecare senzor pentru a sti pe care motor il conectam!
@@ -203,6 +204,14 @@ SENSOR_TYPES = {
         "unit": "grains/m³",
         "icon": "mdi:flower-pollen",
         "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("olive_pollen"),
+    },
+    CONF_TRACK_DAILY_RAIN: {
+        "name": "Daily Precipitation",
+        "type": "weather",
+        "device_class": SensorDeviceClass.PRECIPITATION,
+        "unit": "L/m²",
+        "icon": "mdi:watering-can",
+        "value_fn": lambda data: data.get("weather", {}).get("daily", {}).get("precipitation_sum", [None])[0],
     },
 }
 
@@ -389,34 +398,4 @@ class DynamicWeatherSensor(CoordinatorEntity, SensorEntity):
             return "High"
 
         return None
-
-    @property
-    def extra_state_attributes(self):
-        """Return extra attributes (Location, Health Risk and Risk Options)."""
-        attrs = {}
-        
-        if not self.coordinator.data:
-            return attrs
-
-        location = self.coordinator.data.get("location_name")
-        if location:
-            attrs["current_location"] = location
-
-        val = self.native_value
-        if val is not None:
-            risk = self._calculate_health_risk(self.conf_key, val)
-            if risk:
-                attrs["health_risk"] = risk
-                
-                # --- NOU: Adaugam lista de optiuni pentru automatizari ---
-                if self.conf_key in [CONF_TRACK_ALDER, CONF_TRACK_BIRCH, CONF_TRACK_GRASS, CONF_TRACK_MUGWORT, CONF_TRACK_RAGWEED, CONF_TRACK_OLIVE]:
-                    attrs["health_risk_options"] = ["Low", "Moderate", "High"]
-                    
-                elif self.conf_key in [CONF_TRACK_AQI, CONF_TRACK_PM25, CONF_TRACK_PM10, CONF_TRACK_OZONE, CONF_TRACK_NO2, CONF_TRACK_SO2, CONF_TRACK_CO]:
-                    attrs["health_risk_options"] = ["Good", "Moderate", "Poor"]
-                    
-                elif self.conf_key in [CONF_TRACK_UV, CONF_TRACK_UV_MAX]:
-                    attrs["health_risk_options"] = ["Low", "Moderate", "High", "Very High", "Extreme"]
-
-        return attrs
 

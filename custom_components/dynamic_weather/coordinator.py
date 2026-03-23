@@ -129,7 +129,8 @@ class WeatherCoordinator(DataUpdateCoordinator):
         _LOGGER.debug("Descarcam date noi METEO de la Open-Meteo...")
         weather_url = (
             f"https://api.open-meteo.com/v1/forecast?latitude={lat}&longitude={lon}"
-            "&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index,rain,showers,weather_code,is_day"
+            "&current=temperature_2m,relative_humidity_2m,surface_pressure,wind_speed_10m,wind_direction_10m,uv_index,precipitation,rain,showers,snowfall,weather_code,is_day"
+            "&minutely_15=precipitation,rain,snowfall,weather_code"
             "&daily=temperature_2m_max,temperature_2m_min,uv_index_max,precipitation_probability_max,weather_code,wind_speed_10m_max,wind_direction_10m_dominant,precipitation_sum"
             "&timezone=auto"
         )
