@@ -10,35 +10,41 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from homeassistant.helpers import entity_registry as er
 from homeassistant.util import dt as dt_util
 
-from .const import DOMAIN, CONF_NAME, CONF_ENTITY_ID, CONF_TRACK_IS_RAINING
+from .const import DOMAIN, CONF_NAME, CONF_ENTITY_ID, CONF_TRACK_IS_RAINING, CONF_TRACK_BETA_IS_RAINING
 
 async def async_setup_entry(
     hass: HomeAssistant, entry: ConfigEntry, async_add_entities: AddEntitiesCallback
 ) -> None:
-    """Seteaza sau sterge senzorul binar."""
+    """Seteaza sau sterge senzorii binari in functie de setarile UI."""
     settings = {**entry.data, **entry.options}
     entity_id = settings.get(CONF_ENTITY_ID, "manual")
     source_name = entity_id.split(".")[-1] if "." in entity_id else "manual"
-    unique_id = f"dynamic_weather_{source_name}_{entry.entry_id}_is_raining"
     
-    # Daca e DEBIFAT -> Il stergem
-    if not settings.get(CONF_TRACK_IS_RAINING, True):
-        registry = er.async_get(hass)
-        if entity_to_delete := registry.async_get_entity_id("binary_sensor", DOMAIN, unique_id):
-            registry.async_remove(entity_to_delete)
-        return
-
-    # Daca e BIFAT -> Il adaugam pe amandoi
     coordinator = hass.data[DOMAIN][entry.entry_id]["weather"]
     custom_name = settings.get(CONF_NAME, "Tracker")
-    
-    entities = [
-        DynamicWeatherRainingSensor(coordinator, custom_name, entry.entry_id, entity_id),
-        DynamicWeatherBetaIsRainingSensor(coordinator, custom_name, entry.entry_id, entity_id)
-    ]
-    
-    async_add_entities(entities)
+    registry = er.async_get(hass)
 
+    entities = []
+
+    # 1. Procesam Senzorul Principal
+    unique_id_main = f"dynamic_weather_{source_name}_{entry.entry_id}_is_raining"
+    if settings.get(CONF_TRACK_IS_RAINING, True):
+        entities.append(DynamicWeatherRainingSensor(coordinator, custom_name, entry.entry_id, entity_id))
+    else:
+        if entity_to_delete := registry.async_get_entity_id("binary_sensor", DOMAIN, unique_id_main):
+            registry.async_remove(entity_to_delete)
+
+    # 2. Procesam Senzorul Beta (Atentie la default False)
+    unique_id_beta = f"dynamic_weather_{source_name}_{entry.entry_id}_beta_is_raining"
+    if settings.get(CONF_TRACK_BETA_IS_RAINING, False):
+        entities.append(DynamicWeatherBetaIsRainingSensor(coordinator, custom_name, entry.entry_id, entity_id))
+    else:
+        if entity_to_delete := registry.async_get_entity_id("binary_sensor", DOMAIN, unique_id_beta):
+            registry.async_remove(entity_to_delete)
+
+    # Adaugam doar ce este bifat
+    if entities:
+        async_add_entities(entities)
 
 class DynamicWeatherRainingSensor(CoordinatorEntity, BinarySensorEntity):
     """Senzor binar care indica daca ploua la locatia urmarita (folosind starea curenta)."""

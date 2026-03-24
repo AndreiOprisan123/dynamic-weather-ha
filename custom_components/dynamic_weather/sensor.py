@@ -103,7 +103,7 @@ SENSOR_TYPES = {
         "name": "Air Quality (AQI)",
         "type": "aqi",
         "device_class": SensorDeviceClass.AQI,
-        "unit": "AQI",
+        "unit": None,
         "icon": "mdi:air-filter",
         "value_fn": lambda data: data.get("air_quality", {}).get("current", {}).get("european_aqi"),
     },
@@ -209,7 +209,7 @@ SENSOR_TYPES = {
         "name": "Daily Precipitation",
         "type": "weather",
         "device_class": SensorDeviceClass.PRECIPITATION,
-        "unit": "L/m²",
+        "unit": "mm",
         "icon": "mdi:watering-can",
         "value_fn": lambda data: data.get("weather", {}).get("daily", {}).get("precipitation_sum", [None])[0],
     },
@@ -399,3 +399,23 @@ class DynamicWeatherSensor(CoordinatorEntity, SensorEntity):
 
         return None
 
+class DynamicWeatherGlobalApiSensor(CoordinatorEntity, SensorEntity):
+    """Senzor care afiseaza estimarea totala de request-uri API catre Open-Meteo."""
+
+    def __init__(self, coordinator, entry_id):
+        """Initializeaza senzorul."""
+        super().__init__(coordinator)
+        self._attr_unique_id = f"dynamic_weather_global_api_{entry_id}"
+        self._attr_name = "Global API Requests"
+        self._attr_icon = "mdi:api"
+        self._attr_native_unit_of_measurement = "req/day"
+
+    @property
+    def native_value(self):
+        """Calculeaza live totalul de request-uri pe baza setarilor din tot sistemul."""
+        # Functia este deja importata sus de tot in fisier: 
+        # from .config_flow import calculate_api_requests
+        try:
+            return int(calculate_api_requests(self.coordinator.hass))
+        except Exception:
+            return 0

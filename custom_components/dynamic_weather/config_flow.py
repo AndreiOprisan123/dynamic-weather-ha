@@ -134,9 +134,23 @@ class DynamicWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
         errors = {}
 
         if user_input is not None:
-            if not user_input.get(CONF_USE_MANUAL_LOCATION) and not user_input.get(CONF_ENTITY_ID):
-                errors["base"] = "missing_entity"
+            # 1. Daca bifeaza coordonate manuale, IGNORAM entitatea complet
+            if user_input.get(CONF_USE_MANUAL_LOCATION):
+                user_input[CONF_ENTITY_ID] = "manual"
             else:
+                # 2. Daca NU bifeaza manual, trebuie sa aiba entitate CU coordonate
+                entity_id = user_input.get(CONF_ENTITY_ID)
+                if not entity_id:
+                    errors[CONF_ENTITY_ID] = "missing_entity"
+                else:
+                    # Citim starea curenta a entitatii din Home Assistant
+                    state = self.hass.states.get(entity_id)
+                    # Verificam daca exista si daca are atributul "latitude"
+                    if not state or state.attributes.get("latitude") is None:
+                        errors[CONF_ENTITY_ID] = "no_gps_data"
+
+            # Daca nu avem erori pana aici, mergem mai departe
+            if not errors:
                 # --- TRUCUL DE CONVERSIE INAPOI LA BOOLEAN ---
                 selected_weather = user_input.pop("weather_sensors", [])
                 selected_aqi = user_input.pop("aqi_sensors", [])
@@ -155,7 +169,7 @@ class DynamicWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
                         title=f"Dynamic Weather: {user_input[CONF_NAME]}", 
                         data=user_input
                     )
-
+        default_weather_selection = [k for k in WEATHER_KEYS if k != CONF_TRACK_BETA_IS_RAINING]
         # Modificarea este AICI: default-ul devine toata lista de chei!
         data_schema = vol.Schema({
             vol.Required(CONF_NAME, default="My Tracker"): str,
@@ -170,7 +184,7 @@ class DynamicWeatherConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             vol.Required(CONF_WEATHER_INTERVAL, default=15): vol.All(vol.Coerce(int), vol.Range(min=1, max=1440)),
             
             # --- WEATHER: Totul e selectat by default ---
-            vol.Optional("weather_sensors", default=WEATHER_KEYS): SelectSelector(
+            vol.Optional("weather_sensors", default=default_weather_selection): SelectSelector(
                 SelectSelectorConfig(options=WEATHER_OPTIONS, multiple=True, mode=SelectSelectorMode.DROPDOWN)
             ),
 

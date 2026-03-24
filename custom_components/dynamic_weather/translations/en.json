@@ -22,7 +22,9 @@
             }
         },
         "error": {
-            "missing_entity": "You must select an Entity OR check 'Use Manual Location'."
+            "missing_entity": "You must select an Entity OR check 'Use Manual Location'.",
+            "no_gps_data": "The selected entity does not have GPS coordinates (latitude/longitude).",
+            "api_limit_exceeded": "Global API limit will be exceeded (> 9500 requests/day). Please increase the intervals."
         },
         "abort": {
             "already_configured": "This instance is already configured."
